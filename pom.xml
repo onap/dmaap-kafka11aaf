@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!-- ============LICENSE_START======================================================= 
 	org.onap.dmaap ================================================================================ 
 	Copyright © 2017 AT&T Intellectual Property. All rights reserved. ================================================================================ 
@@ -9,14 +10,13 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. ============LICENSE_END========================================================= 
 	ECOMP is a trademark and service mark of AT&T Intellectual Property. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.onap.oparent</groupId>
 		<artifactId>oparent</artifactId>
-		<version>1.1.0</version>
+		<version>1.2.0</version>
 	</parent>
 
 	<groupId>org.onap.dmaap.kafka</groupId>
@@ -32,7 +32,7 @@
 	<developers>
 		<developer>
 			<name>Sunil Unnava</name>
-			<email></email>
+			<email/>
 			<organization>ATT</organization>
 			<organizationUrl>www.att.com</organizationUrl>
 		</developer>
