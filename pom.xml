@@ -1,0 +1,216 @@
+<!-- ============LICENSE_START======================================================= 
+	org.onap.dmaap ================================================================================ 
+	Copyright © 2017 AT&T Intellectual Property. All rights reserved. ================================================================================ 
+	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+	use this file except in compliance with the License. You may obtain a copy 
+	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. ============LICENSE_END========================================================= 
+	ECOMP is a trademark and service mark of AT&T Intellectual Property. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.onap.oparent</groupId>
+		<artifactId>oparent</artifactId>
+		<version>1.1.0</version>
+	</parent>
+
+	<groupId>org.onap.dmaap.kafka</groupId>
+	<artifactId>kafka11aaf</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>kafka11aaf</name>
+	<licenses>
+		<license>
+			<name>Apache License Version 2.0</name>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Sunil Unnava</name>
+			<email></email>
+			<organization>ATT</organization>
+			<organizationUrl>www.att.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.6</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.wagon</groupId>
+						<artifactId>wagon-webdav-jackrabbit</artifactId>
+						<version>2.10</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<checkModificationExcludes>
+					</checkModificationExcludes>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<version>1.9.4</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<imageName>onap/dmaap/kafka01101</imageName>
+					<dockerDirectory>src/main/docker</dockerDirectory>
+					<serverId>docker-hub</serverId>
+					<imageTags>
+						<imageTag>${KafkaImg}</imageTag>
+						<imageTag>latest</imageTag>
+					</imageTags>
+					<forceTags>true</forceTags>
+					<resources>
+						<!-- <resource> <targetPath>/</targetPath> <directory>${dockerLocation}</directory> 
+							<include>${project.build.finalName}.jar</include> </resource> -->
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>**/**</include>
+						</resource>
+					</resources>
+				</configuration>
+				<executions>
+					<execution>
+						<id>build-image</id>
+						<phase>install</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+						<configuration>
+							<skipDockerBuild>${skip.docker.build}</skipDockerBuild>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tag-image-project-version</id>
+						<phase>install</phase>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<image>onap/dmaap/kafka01101</image>
+							<newName>${docker.push.registry}/onap/dmaap/kafka01101:${KafkaImg}</newName>
+							<skipDockerTag>${skip.docker.push}</skipDockerTag>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tag-image-latest</id>
+						<phase>install</phase>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<image>onap/dmaap/kafka01101</image>
+							<newName>${docker.push.registry}/onap/dmaap/kafka01101:latest</newName>
+							<skipDockerTag>${skip.docker.push}</skipDockerTag>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>push-image</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+						<configuration>
+							<imageName>${docker.push.registry}/onap/dmaap/kafka01101:${KafkaImg}</imageName>
+							<skipDockerPush>${skip.docker.push}</skipDockerPush>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>push-image-latest</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+						<configuration>
+							<imageName>${docker.push.registry}/onap/dmaap/kafka01101:latest</imageName>
+							<skipDockerPush>${skip.docker.push}</skipDockerPush>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<KafkaImg>0.0.1</KafkaImg>
+		<sitePath>/content/sites/site/org/onap/dmaap/kafka0111/${project.artifactId}/${project.version}</sitePath>
+		<skip.docker.build>true</skip.docker.build>
+		<skip.docker.push>true</skip.docker.push>
+		<nexusproxy>https://nexus.onap.org</nexusproxy>
+		<docker.push.registry>nexus3.onap.org:10003</docker.push.registry>
+	</properties>
+
+	<!-- Distribution management -->
+	<distributionManagement>
+		<site>
+			<id>ecomp-site</id>
+			<url>dav:${nexusproxy}${sitePath}</url>
+		</site>
+	</distributionManagement>
+
+	<dependencies>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>docker</id>
+			<properties>
+				<skip.docker.build>false</skip.docker.build>
+				<skip.docker.tag>false</skip.docker.tag>
+				<skip.docker.push>false</skip.docker.push>
+			</properties>
+		</profile>
+
+	</profiles>
+
+</project>
