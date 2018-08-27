@@ -53,11 +53,11 @@
 				</dependencies>
 			</plugin>
 
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.0.2</version>
-			</plugin>
+			</plugin> -->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -89,6 +89,19 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+
+	<plugin>
+		<!-- Disable Sonatype Nexus Extensions for Wren Security's Repo -->
+		<groupId>org.sonatype.plugins</groupId>
+		<artifactId>nexus-staging-maven-plugin</artifactId>
+		<extensions>false</extensions>
+		<executions>
+			<execution>
+				<id>injected-nexus-deploy</id>
+				<phase>none</phase>
+			</execution>
+		</executions>
+	</plugin>
 
 			<plugin>
 				<groupId>com.spotify</groupId>
