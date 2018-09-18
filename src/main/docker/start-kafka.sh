@@ -135,4 +135,16 @@ if [[ -n "$CUSTOM_INIT_SCRIPT" ]] ; then
   eval $CUSTOM_INIT_SCRIPT
 fi
 
+cp /tmp/keyfilenew  $KAFKA_HOME/config
+cp /tmp/truststoreONAPall.jks $KAFKA_HOME/config
+cp /tmp/org.onap.dmaap.mr.p12 $KAFKA_HOME/config
+cp /tmp/kafka_server_jaas.conf $KAFKA_HOME/config
+cp /tmp/cadi.properties $KAFKA_HOME/config
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/consumer_jaas.conf"
+
+echo "authorizer.class.name=org.onap.dmaap.kafkaAuthorize.KafkaCustomAuthorizer" >> $KAFKA_HOME/config/server.properties
+echo "security.inter.broker.protocol=SASL_PLAINTEXT" >> $KAFKA_HOME/config/server.properties
+echo "sasl.enabled.mechanisms=PLAIN" >> $KAFKA_HOME/config/server.properties
+echo "sasl.mechanism.inter.broker.protocol=PLAIN" >> $KAFKA_HOME/config/server.properties
+
 exec $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
