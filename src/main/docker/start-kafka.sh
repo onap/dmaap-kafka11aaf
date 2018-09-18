@@ -134,7 +134,7 @@ done
 if [[ -n "$CUSTOM_INIT_SCRIPT" ]] ; then
   eval $CUSTOM_INIT_SCRIPT
 fi
-
+cp /tmp/kafka11aaf-jar-with-dependencies.jar $KAFKA_HOME/libs
 cp /tmp/keyfilenew  $KAFKA_HOME/config
 cp /tmp/truststoreONAPall.jks $KAFKA_HOME/config
 cp /tmp/org.onap.dmaap.mr.p12 $KAFKA_HOME/config
