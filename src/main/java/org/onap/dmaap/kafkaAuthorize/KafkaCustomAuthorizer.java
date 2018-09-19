@@ -36,7 +36,7 @@ import kafka.security.auth.Resource;
 import scala.collection.immutable.Set;
 
 /**
- * A trivial Kafka Authorizer for use with SSL AT&T AAF
+ * A trivial Kafka Authorizer for use with SSL and  AAF
  * Authentication/Authorization.
  * 
  */
@@ -90,7 +90,7 @@ public class KafkaCustomAuthorizer implements Authorizer {
 
 			if (null != topicName && topicName.indexOf(".") > 0) {
 				namspace = topicName.substring(0, topicName.lastIndexOf("."));
-				ins = namspace + ".mr.topic";
+				ins = namspace + ".topic";
 				type = ":topic." + topicName;
 				logger.info("^Event Received for topic " + topicName + " , User " + fullName + " , action = " + action);
 			}
