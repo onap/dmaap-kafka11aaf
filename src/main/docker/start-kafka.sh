@@ -143,7 +143,6 @@ cp /tmp/cadi.properties $KAFKA_HOME/config
 export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/config/kafka_server_jaas.conf"
 
 echo "authorizer.class.name=org.onap.dmaap.kafkaAuthorize.KafkaCustomAuthorizer" >> $KAFKA_HOME/config/server.properties
-echo "security.inter.broker.protocol=SASL_PLAINTEXT" >> $KAFKA_HOME/config/server.properties
 echo "sasl.enabled.mechanisms=PLAIN" >> $KAFKA_HOME/config/server.properties
 echo "sasl.mechanism.inter.broker.protocol=PLAIN" >> $KAFKA_HOME/config/server.properties
 
