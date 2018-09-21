@@ -146,4 +146,6 @@ echo "authorizer.class.name=org.onap.dmaap.kafkaAuthorize.KafkaCustomAuthorizer"
 echo "sasl.enabled.mechanisms=PLAIN" >> $KAFKA_HOME/config/server.properties
 echo "sasl.mechanism.inter.broker.protocol=PLAIN" >> $KAFKA_HOME/config/server.properties
 
+
+echo "10.12.6.214 aaf-onap-beijing-test aaf-onap-beijing-test.osaaf.org aaf-onap-test.osaaf.org" >> /etc/hosts
 exec $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
