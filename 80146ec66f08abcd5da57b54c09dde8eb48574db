@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Ram Koya <rk541m@att.com>
+Submitted-by: Ram Koya <rk541m@att.com>
+Submitted-at: Fri, 21 Sep 2018 00:22:11 +0000
+Reviewed-on: https://gerrit.onap.org/r/68305
+Project: dmaap/kafka11aaf
+Branch: refs/heads/master
