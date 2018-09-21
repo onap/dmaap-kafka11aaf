@@ -123,7 +123,7 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 				hasPermission = true;
 				return hasPermission;
 			}
-			AAFPermission perm = new AAFPermission(MR_NAMESPACE, permission, instance, action);
+			AAFPermission perm = new AAFPermission(null, permission, instance, action);
 			if (aafLur != null) {
 				hasPermission = aafLur.fish(new UnAuthPrincipal(userId), perm);
 				logger.trace("Permission: " + perm.getKey() + " for user :" + userId + " found: " + hasPermission);
