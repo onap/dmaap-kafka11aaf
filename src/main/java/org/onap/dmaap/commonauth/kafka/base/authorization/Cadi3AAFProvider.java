@@ -42,7 +42,7 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	private static AAFCon<?> aafcon;
 	private static final String CADI_PROPERTIES = "/opt/kafka/config/cadi.properties";
 	private static final String AAF_LOCATOR_ENV = "aaf_locate_url";
-	private static final String MR_NAMESPACE = "	org.onap.dmaap.mr";
+	private static final String MR_NAMESPACE = "org.onap.dmaap.mr";
 
 	public static AAFAuthn<?> getAafAuthn() throws CadiException {
 		if (aafAuthn == null) {
