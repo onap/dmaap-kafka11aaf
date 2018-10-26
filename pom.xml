@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.onap.oparent</groupId>
 		<artifactId>oparent</artifactId>
-		<version>1.2.0</version>
+		<version>1.2.1</version>
 	</parent>
 
 	<groupId>org.onap.dmaap.kafka</groupId>
@@ -258,6 +258,7 @@
 		<skip.docker.push>true</skip.docker.push>
 		<nexusproxy>https://nexus.onap.org</nexusproxy>
 		<docker.push.registry>nexus3.onap.org:10003</docker.push.registry>
+		<onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
 	</properties>
 
 	<!-- Distribution management -->
