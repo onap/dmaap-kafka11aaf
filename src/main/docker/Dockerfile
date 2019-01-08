@@ -13,7 +13,11 @@ ADD truststoreONAPall.jks /tmp/truststoreONAPall.jks
 ADD org.onap.dmaap.mr.p12 /tmp/org.onap.dmaap.mr.p12
 ADD keyfilenew /tmp/keyfilenew
 ADD cadi.properties /tmp/cadi.properties
+ADD mmagent.config /opt/etc/mmagent.config
+ADD consumer.properties /opt/etc/consumer.properties
+ADD producer.properties /opt/etc/producer.properties
 ADD kafka11aaf-jar-with-dependencies.jar /tmp/kafka11aaf-jar-with-dependencies.jar
+ADD dmaapMMAgent.jar /tmp/dmaapMMAgent.jar
 
 RUN chmod a+x /tmp/download-kafka.sh && sync && /tmp/download-kafka.sh && tar xfz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt && rm /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz && ln -s /opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION} /opt/kafka
 

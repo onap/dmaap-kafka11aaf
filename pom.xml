@@ -21,7 +21,7 @@
 
 	<groupId>org.onap.dmaap.kafka</groupId>
 	<artifactId>kafka11aaf</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>dmaap-kafka11aaf</name>
 	<licenses>
 		<license>
@@ -137,6 +137,53 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target</outputDirectory>
+							<encoding>UTF-8</encoding>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.onap.dmaap.messagerouter.mirroragent</groupId>
+									<artifactId>dmaapMMAgent</artifactId>
+									<version>1.1.0-SNAPSHOT</version>
+									<destFileName>dmaapMMAgent.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-no-snapshots</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireReleaseDeps>
+									<message>No Snapshots Allowed!</message>
+									<excludes>
+										<exclude>org.onap.dmaap.messagerouter.mirroragent:dmaapMMAgent</exclude>
+									</excludes>
+								</requireReleaseDeps>
+							</rules>
+							<fail>true</fail>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>com.spotify</groupId>
 				<artifactId>docker-maven-plugin</artifactId>
 				<version>1.0.0</version>
@@ -156,6 +203,11 @@
 							<targetPath>/</targetPath>
 							<directory>${project.build.directory}</directory>
 							<include>**/**</include>
+						</resource>
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>dmaapMMAgent.jar</include>
 						</resource>
 					</resources>
 				</configuration>
@@ -233,7 +285,7 @@
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 					<!-- MainClass in mainfest make a executable jar -->
-                 <finalName>kafka11aaf</finalName>
+					<finalName>kafka11aaf</finalName>
 				</configuration>
 				<executions>
 					<execution>
@@ -246,13 +298,13 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<KafkaImg>0.0.2</KafkaImg>
+		<KafkaImg>0.0.3</KafkaImg>
 		<sitePath>/content/sites/site/org/onap/dmaap/kafka0111/${project.artifactId}/${project.version}</sitePath>
 		<skip.docker.build>true</skip.docker.build>
 		<skip.docker.push>true</skip.docker.push>
