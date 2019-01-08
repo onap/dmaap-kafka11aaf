@@ -143,6 +143,8 @@ cp /tmp/cadi.properties $KAFKA_HOME/config
 export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/config/kafka_server_jaas.conf"
 
 
-
 echo "10.12.6.214 aaf-onap-beijing-test aaf-onap-beijing-test.osaaf.org aaf-onap-test.osaaf.org" >> /etc/hosts
 exec $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
+
+
+

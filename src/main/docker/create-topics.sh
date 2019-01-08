@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [[ -n "$MM_AGENT_WAIT_TIME" ]]; then
+  ORD=$(eval $BROKER_ID_COMMAND)
+  if [ "$ORD" = "0" ]; then
+    echo "wait for $MM_AGENT_WAIT_TIME before start of the mirror maker agent"
+    sleep $MM_AGENT_WAIT_TIME
+    java -jar /tmp/dmaapMMAgent.jar
+  fi
+fi
+
 
 if [[ -z "$START_TIMEOUT" ]]; then
     START_TIMEOUT=600
