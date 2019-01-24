@@ -63,7 +63,9 @@ public class KafkaCustomAuthorizer implements Authorizer {
 		}
 
 		String fullName = arg0.principal().getName();
-		fullName = fullName != null ? fullName.trim() : fullName;
+		if(null!=fullName) {
+			fullName = fullName != null ? fullName.trim() : fullName;
+		}
 		String topicName = null;
 		String namspace = null;
 		String ins = null;
