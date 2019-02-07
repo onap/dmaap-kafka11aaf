@@ -143,6 +143,7 @@ export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/config/kafka_se
 
 
 echo "10.12.6.214 aaf-onap-beijing-test aaf-onap-beijing-test.osaaf.org aaf-onap-test.osaaf.org" >> /etc/hosts
+mkdir /opt/logs
 java -jar /tmp/dmaapMMAgent.jar
 
 
