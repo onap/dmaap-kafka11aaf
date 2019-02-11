@@ -54,8 +54,6 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	private static AAFAuthn<?> aafAuthn;
 	private static AbsAAFLur<AAFPermission> aafLur;
 
-	private static boolean props_ok = false;
-
 	private static final Logger logger = LoggerFactory.getLogger(Cadi3AAFProvider.class);
 
 	public Cadi3AAFProvider() {
@@ -85,11 +83,6 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 				logger.error("Unable to load " + CADI_PROPERTIES);
 				logger.error("Error", e);
 			}
-
-			props_ok = true;
-			if (props_ok == false) {
-				return;
-			}
 		}
 
 		if (aafAuthn == null) {
@@ -101,7 +94,6 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 				aafAuthn = null;
 				if (access != null)
 					access.log(e, "Failed to initialize AAF");
-				props_ok = false;
 			}
 		}
 

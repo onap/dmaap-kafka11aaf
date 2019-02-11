@@ -94,7 +94,7 @@ public class KafkaCustomAuthorizer implements Authorizer {
 				logger.info("^Event Received for topic " + topicName + " , User " + fullName + " , action = " + action);
 			}
 
-			if (fullName.equals("admin")) {
+			if (null != fullName && fullName.equals("admin")) {
 				return true;
 			}
 
