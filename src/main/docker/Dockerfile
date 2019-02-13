@@ -18,6 +18,7 @@ ADD consumer.properties /opt/etc/consumer.properties
 ADD producer.properties /opt/etc/producer.properties
 ADD kafka11aaf-jar-with-dependencies.jar /tmp/kafka11aaf-jar-with-dependencies.jar
 ADD dmaapMMAgent.jar /tmp/dmaapMMAgent.jar
+ADD kafka-run-class.sh /tmp/kafka-run-class.sh
 
 RUN chmod a+x /tmp/download-kafka.sh && sync && /tmp/download-kafka.sh && tar xfz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt && rm /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz && ln -s /opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION} /opt/kafka
 
@@ -30,13 +31,11 @@ ADD broker-list.sh /usr/bin/broker-list.sh
 ADD create-topics.sh /usr/bin/create-topics.sh
 ADD start-kafkaOrMirrorMaker.sh /usr/bin/start-kafkaOrMirrorMaker.sh
 ADD start-mirrormaker.sh /usr/bin/start-mirrormaker.sh
-ADD kafka-run-class.sh ${KAFKA_HOME}/bin/kafka-run-class.sh
 # The scripts need to have executable permission
 RUN chmod a+x /usr/bin/start-kafka.sh && \
     chmod a+x /usr/bin/broker-list.sh && \
     chmod a+x /usr/bin/start-kafkaOrMirrorMaker.sh && \
     chmod a+x /usr/bin/start-mirrormaker.sh && \
-    chmod a+x ${KAFKA_HOME}/bin/kafka-run-class.sh && \
     chmod a+x /usr/bin/create-topics.sh
 # Use "exec" form so that it runs as PID 1 (useful for graceful shutdown)
 CMD ["start-kafkaOrMirrorMaker.sh"]
