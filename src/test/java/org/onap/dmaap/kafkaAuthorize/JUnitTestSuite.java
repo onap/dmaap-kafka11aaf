@@ -27,7 +27,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.apache.log4j.Logger;
 
 @RunWith(Suite.class)
-@SuiteClasses({ KafkaCustomAuthorizerTest.class, PlainSaslServer1Test.class })
+@SuiteClasses({ KafkaCustomAuthorizerTest.class, PlainSaslServer1Test.class, PlainLoginModule1Test.class })
 public class JUnitTestSuite {
 	private static final Logger LOGGER = Logger.getLogger(JUnitTestSuite.class);
 

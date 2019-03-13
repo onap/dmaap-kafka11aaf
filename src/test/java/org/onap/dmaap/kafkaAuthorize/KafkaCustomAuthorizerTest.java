@@ -31,6 +31,7 @@ import org.mockito.MockitoAnnotations;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProvider;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderFactory;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -40,6 +41,7 @@ import kafka.security.auth.Resource;
 import kafka.security.auth.ResourceType;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.net.ssl.*")
 @PrepareForTest({ AuthorizationProviderFactory.class })
 public class KafkaCustomAuthorizerTest {
 	@Mock
@@ -57,7 +59,11 @@ public class KafkaCustomAuthorizerTest {
 	@Mock
 	AuthorizationProvider provider;
 
-	KafkaCustomAuthorizer authorizer = new KafkaCustomAuthorizer();
+	KafkaCustomAuthorizer authorizer;
+	
+	static {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -77,17 +83,21 @@ public class KafkaCustomAuthorizerTest {
 
 	@Test
 	public void testAuthorizerSuccess() {
+
+
 		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
 				.thenReturn(true);
+		authorizer = new KafkaCustomAuthorizer();
 		assertTrue(authorizer.authorize(arg0, arg1, arg2));
 
 	}
 
 	@Test
 	public void testAuthorizerFailure() {
-
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
 		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
 				.thenReturn(false);
+		authorizer = new KafkaCustomAuthorizer();
 		try {
 			authorizer.authorize(arg0, arg1, arg2);
 		} catch (Exception e) {

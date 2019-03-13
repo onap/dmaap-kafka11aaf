@@ -21,11 +21,11 @@
 package org.onap.dmaap.kafkaAuthorize;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.security.sasl.SaslException;
 
 import org.apache.kafka.common.security.JaasContext;
-import org.apache.kafka.common.security.plain.PlainSaslServer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,4 +65,97 @@ public class PlainSaslServer1Test {
 		assertNotNull(sslServer.evaluateResponse(response.getBytes()));
 
 	}
+
+	@Test
+	public void testAuthenticationEmptyAuth() throws Exception {
+		String response = "\u0000username\u0000password";
+		PowerMockito.when(provider.authenticate("username", "password")).thenReturn(null);
+		sslServer.evaluateResponse(response.getBytes());
+		assert(true);
+	}
+
+	@Test
+	public void testAuthenticationEmptyUser() throws Exception {
+		String response = "authorizationID\u0000\u0000password";
+		PowerMockito.when(provider.authenticate("username", "password")).thenReturn(null);
+		
+		try {
+			sslServer.evaluateResponse(response.getBytes());
+		}
+		catch (SaslException e) {
+			assertTrue(e.getMessage().equalsIgnoreCase("Authentication failed: username not specified"));
+		}
+	}
+	@Test
+	public void testAuthenticationEmptyPassword() throws Exception {
+		String response = "authorizationID\u0000username\u0000";
+		PowerMockito.when(provider.authenticate("username", "password")).thenReturn(null);
+		try {
+			sslServer.evaluateResponse(response.getBytes());
+		}
+		catch (SaslException e) {
+			assertTrue(e.getMessage().equalsIgnoreCase("Invalid SASL/PLAIN response: expected 3 tokens, got 2"));
+		}
+	}
+	
+	@Test
+	public void testGetAuthorizationIdWithException() {
+		
+		try {
+		sslServer.getAuthorizationID();
+		}
+		catch (IllegalStateException ise) {
+			assertTrue(ise.getMessage().equalsIgnoreCase("Authentication exchange has not completed"));
+		}
+	}
+
+	@Test
+	public void testGetNegotiatedPropertyWithException() {
+		
+		try {
+		sslServer.getNegotiatedProperty("test");
+		}
+		catch (IllegalStateException ise) {
+			assertTrue(ise.getMessage().equalsIgnoreCase("Authentication exchange has not completed"));
+		}
+	}
+	
+	@Test
+	public void testIsComplete() {
+		
+		try {
+		sslServer.getNegotiatedProperty("test");
+		}
+		catch (IllegalStateException ise) {
+			assertTrue(ise.getMessage().equalsIgnoreCase("Authentication exchange has not completed"));
+		}
+		assert(true);
+	}	
+
+	
+	@Test
+	public void testUnwrap() {
+		try {
+		sslServer.unwrap(new byte[1], 0, 0);
+		}
+		catch (IllegalStateException ise) {
+			assertTrue(ise.getMessage().equalsIgnoreCase("Authentication exchange has not completed"));
+		} catch (SaslException e) {
+			e.printStackTrace();
+		}
+		assert(true);
+	}	
+	
+	@Test
+	public void testWrap() {
+		try {
+		sslServer.wrap(new byte[1], 0, 0);
+		}
+		catch (IllegalStateException ise) {
+			assertTrue(ise.getMessage().equalsIgnoreCase("Authentication exchange has not completed"));
+		} catch (SaslException e) {
+			e.printStackTrace();
+		}
+		assert(true);
+	}	
 }

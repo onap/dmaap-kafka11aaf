@@ -31,16 +31,28 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.onap.aaf.cadi.PropAccess;
+import org.onap.aaf.cadi.aaf.AAFPermission;
 import org.onap.aaf.cadi.aaf.v2_0.AAFAuthn;
+import org.onap.aaf.cadi.aaf.v2_0.AAFConHttp;
+import org.onap.aaf.cadi.aaf.v2_0.AbsAAFLur;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.net.ssl.*")
 public class Cadi3AAFProviderTest {
 
 	public Cadi3AAFProvider cadi3AAFProvider;
 
 	@Mock
 	private static AAFAuthn<?> aafAuthn;
+	
+	@Mock
+	private static AAFConHttp aafCon;
+	
+	@Mock
+	private static AbsAAFLur<AAFPermission> aafLur;
 
 	@Mock
 	private static PropAccess access;
@@ -57,6 +69,13 @@ public class Cadi3AAFProviderTest {
 		assertFalse(cadi3AAFProvider.hasPermission("userID", "permission", "instance", "action"));
 	}
 
+	@Test
+	public void testHasAdminPermission() {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		cadi3AAFProvider = new Cadi3AAFProvider();
+		assertEquals(cadi3AAFProvider.hasPermission("admin", "permission", "instance", "action"), true);
+	}
+	
 	@Test(expected = NullPointerException.class)
 	public void tesAuthenticate() throws Exception {
 		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
@@ -72,5 +91,5 @@ public class Cadi3AAFProviderTest {
 		when(aafAuthn.validate("admin", "password")).thenReturn("valid");
 		assertNull(cadi3AAFProvider.authenticate("admin", "password"));
 	}
-
+	
 }
