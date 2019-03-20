@@ -146,7 +146,6 @@ echo "10.12.6.214 aaf-onap-beijing-test aaf-onap-beijing-test.osaaf.org aaf-onap
 
 mkdir /opt/logs
 cp /tmp/kafka-run-class.sh /opt/kafka/bin
-chmod /opt/kafka/bin/kafka-run-class.sh
 java -jar /tmp/dmaapMMAgent.jar
 
 
