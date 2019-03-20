@@ -142,7 +142,6 @@ cp /tmp/cadi.properties $KAFKA_HOME/config
 export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/config/kafka_server_jaas.conf"
 
 
-echo "10.12.6.214 aaf-onap-beijing-test aaf-onap-beijing-test.osaaf.org aaf-onap-test.osaaf.org" >> /etc/hosts
 
 mkdir /opt/logs
 cp /tmp/kafka-run-class.sh /opt/kafka/bin
