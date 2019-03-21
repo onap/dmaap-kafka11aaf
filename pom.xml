@@ -162,33 +162,10 @@
 								<artifactItem>
 									<groupId>org.onap.dmaap.messagerouter.mirroragent</groupId>
 									<artifactId>dmaapMMAgent</artifactId>
-									<version>1.1.1-SNAPSHOT</version>
+									<version>1.1.1</version>
 									<destFileName>dmaapMMAgent.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>enforce-no-snapshots</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireReleaseDeps>
-									<message>No Snapshots Allowed!</message>
-									<excludes>
-										<exclude>org.onap.dmaap.messagerouter.mirroragent:dmaapMMAgent</exclude>
-									</excludes>
-								</requireReleaseDeps>
-							</rules>
-							<fail>true</fail>
 						</configuration>
 					</execution>
 				</executions>
