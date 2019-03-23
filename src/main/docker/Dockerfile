@@ -18,7 +18,7 @@
 #  limitations under the License.
 #  ============LICENSE_END====================================================
 #
-FROM openjdk:8-alpine
+FROM anapsix/alpine-java
 
 MAINTAINER DMAAP Team
 
