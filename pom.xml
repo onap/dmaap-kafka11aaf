@@ -21,7 +21,7 @@
 
 	<groupId>org.onap.dmaap.kafka</groupId>
 	<artifactId>kafka11aaf</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<name>dmaap-kafka11aaf</name>
 	<licenses>
 		<license>
@@ -165,7 +165,7 @@
 				<artifactId>docker-maven-plugin</artifactId>
 				<version>1.0.0</version>
 				<configuration>
-					<imageName>onap/dmaap/kafka01101</imageName>
+					<imageName>onap/dmaap/kafka111</imageName>
 					<dockerDirectory>src/main/docker</dockerDirectory>
 					<serverId>docker-hub</serverId>
 					<imageTags>
@@ -206,8 +206,8 @@
 							<goal>tag</goal>
 						</goals>
 						<configuration>
-							<image>onap/dmaap/kafka01101</image>
-							<newName>${docker.push.registry}/onap/dmaap/kafka01101:${dockertag2}</newName>
+							<image>onap/dmaap/kafka111</image>
+							<newName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag2}</newName>
 							<skipDockerTag>${skip.docker.push}</skipDockerTag>
 						</configuration>
 					</execution>
@@ -219,8 +219,8 @@
 							<goal>tag</goal>
 						</goals>
 						<configuration>
-							<image>onap/dmaap/kafka01101</image>
-							<newName>${docker.push.registry}/onap/dmaap/kafka01101:${dockertag1}</newName>
+							<image>onap/dmaap/kafka111</image>
+							<newName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag1}</newName>
 							<skipDockerTag>${skip.docker.push}</skipDockerTag>
 						</configuration>
 					</execution>
@@ -232,7 +232,7 @@
 							<goal>push</goal>
 						</goals>
 						<configuration>
-							<imageName>${docker.push.registry}/onap/dmaap/kafka01101:${dockertag2}</imageName>
+							<imageName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag2}</imageName>
 							<skipDockerPush>${skip.docker.push}</skipDockerPush>
 						</configuration>
 					</execution>
@@ -244,7 +244,7 @@
 							<goal>push</goal>
 						</goals>
 						<configuration>
-							<imageName>${docker.push.registry}/onap/dmaap/kafka01101:${dockertag1}</imageName>
+							<imageName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag1}</imageName>
 							<skipDockerPush>${skip.docker.push}</skipDockerPush>
 						</configuration>
 					</execution>
