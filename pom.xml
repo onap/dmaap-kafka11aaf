@@ -21,8 +21,8 @@
 
 	<groupId>org.onap.dmaap.kafka</groupId>
 	<artifactId>kafka11aaf</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
-	<name>dmaap-kafka11aaf</name>
+	<version>0.0.6-SNAPSHOT</version>
+	<name>dmaap-kafka</name>
 	<licenses>
 		<license>
 			<name>Apache License Version 2.0</name>
