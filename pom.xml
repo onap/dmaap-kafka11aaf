@@ -281,7 +281,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
+		<maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
 		<sitePath>/content/sites/site/org/onap/dmaap/kafka0111/${project.artifactId}/${project.version}</sitePath>
 		<skip.docker.build>true</skip.docker.build>
 		<skip.docker.push>true</skip.docker.push>
@@ -317,8 +317,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.11</artifactId>
-			<version>0.11.0.3</version>
+			<artifactId>kafka_2.12</artifactId>
+			<version>1.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.powermock</groupId>
@@ -357,39 +357,43 @@
 				<skip.docker.push>false</skip.docker.push>
 			</properties>
 			<build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.groovy.maven</groupId>
-                        <artifactId>gmaven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <ver>${project.version}</ver>
-                                        <timestamp>${maven.build.timestamp}</timestamp>
-                                    </properties>
-                                    <source>
-                                        println project.properties['ver'];
-                                        if ( project.properties['ver'].endsWith("-SNAPSHOT") ) {
-                                        project.properties['dockertag1']=project.properties['ver'] + "-latest";
-                                        project.properties['dockertag2']=project.properties['ver'] + "-" + project.properties['timestamp'];
-                                        } else {
-                                        project.properties['dockertag1']=project.properties['ver'] + "-STAGING-latest";
-                                        project.properties['dockertag2']=project.properties['ver'] + "-STAGING-" + project.properties['timestamp'];
-                                        }
-                                        println 'docker tag 1: ' + project.properties['dockertag1'];
-                                        println 'docker tag 2: ' + project.properties['dockertag2'];
-                                    </source>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    </plugins>
-                    </build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.groovy.maven</groupId>
+						<artifactId>gmaven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+									<properties>
+										<ver>${project.version}</ver>
+										<timestamp>${maven.build.timestamp}</timestamp>
+									</properties>
+									<source>
+										println project.properties['ver'];
+										if ( project.properties['ver'].endsWith("-SNAPSHOT") ) {
+										project.properties['dockertag1']=project.properties['ver'] +
+										"-latest";
+										project.properties['dockertag2']=project.properties['ver'] +
+										"-" + project.properties['timestamp'];
+										} else {
+										project.properties['dockertag1']=project.properties['ver'] +
+										"-STAGING-latest";
+										project.properties['dockertag2']=project.properties['ver'] +
+										"-STAGING-" + project.properties['timestamp'];
+										}
+										println 'docker tag 1: ' + project.properties['dockertag1'];
+										println 'docker tag 2: ' + project.properties['dockertag2'];
+									</source>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 
 	</profiles>
