@@ -143,7 +143,6 @@ export KAFKA_OPTS="-Djava.security.auth.login.config=$KAFKA_HOME/config/kafka_se
 
 
 
-mkdir /opt/logs
 cp /tmp/kafka-run-class.sh /opt/kafka/bin
 java -jar /tmp/dmaapMMAgent.jar
 
