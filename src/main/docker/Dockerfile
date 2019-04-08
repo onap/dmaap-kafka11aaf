@@ -31,6 +31,7 @@ ADD broker-list.sh /usr/bin/broker-list.sh
 ADD create-topics.sh /usr/bin/create-topics.sh
 ADD start-kafkaOrMirrorMaker.sh /usr/bin/start-kafkaOrMirrorMaker.sh
 ADD start-mirrormaker.sh /usr/bin/start-mirrormaker.sh
+RUN mkdir /opt/logs
 # The scripts need to have executable permission
 RUN chmod a+x /usr/bin/start-kafka.sh && \
     chmod a+x /usr/bin/broker-list.sh && \
@@ -39,3 +40,11 @@ RUN chmod a+x /usr/bin/start-kafka.sh && \
     chmod a+x /usr/bin/create-topics.sh
 # Use "exec" form so that it runs as PID 1 (useful for graceful shutdown)
 CMD ["start-kafkaOrMirrorMaker.sh"]
+
+RUN addgroup  onap \
+    && adduser  mrkafka -G onap \
+    && chown -R mrkafka:onap  /opt/kafka/ /opt/logs/ /opt/etc/ /kafka/  /usr/bin/ /tmp/
+
+USER mrkafka
+
+
