@@ -41,10 +41,8 @@ RUN chmod a+x /usr/bin/start-kafka.sh && \
 # Use "exec" form so that it runs as PID 1 (useful for graceful shutdown)
 CMD ["start-kafkaOrMirrorMaker.sh"]
 
-RUN addgroup -S  onap \
-    && adduser -S  mrkafka -G onap \
-    && chown -R mrkafka:onap  /opt/kafka/ /opt/logs/ /opt/etc/ /kafka/  /usr/bin/ /tmp/
+RUN addgroup -S -g 1000  mrkafka  \
+    && adduser -S  -u 1000 mrkafka  mrkafka \
+    && chown -R mrkafka:mrkafka  /opt/kafka/ /opt/logs/ /opt/etc/ /kafka/  /usr/bin/ /tmp/
 
 USER mrkafka
-
-
