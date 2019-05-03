@@ -9,9 +9,9 @@ RUN apk add --update unzip wget curl docker jq coreutils
 ENV KAFKA_VERSION=$kafka_version SCALA_VERSION=$scala_version
 ADD download-kafka.sh /tmp/download-kafka.sh
 ADD kafka_server_jaas.conf /tmp/kafka_server_jaas.conf
-ADD truststoreONAPall.jks /tmp/truststoreONAPall.jks
+ADD org.onap.dmaap.mr.trust.jks /tmp/org.onap.dmaap.mr.trust.jks
 ADD org.onap.dmaap.mr.p12 /tmp/org.onap.dmaap.mr.p12
-ADD keyfilenew /tmp/keyfilenew
+ADD org.onap.dmaap.mr.keyfile /tmp/org.onap.dmaap.mr.keyfile
 ADD cadi.properties /tmp/cadi.properties
 ADD mmagent.config /opt/etc/mmagent.config
 ADD consumer.properties /opt/etc/consumer.properties
