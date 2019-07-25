@@ -76,9 +76,12 @@ public class KafkaCustomAuthorizer implements Authorizer {
 			action = "sub";
 		} else if (kafkaactivity.equals("Write")) {
 			action = "pub";
-		} else if (kafkaactivity.equals("Describe")) {
+		} else if (kafkaactivity.equals("Create")) {
+			action = "create";
+		} else {
 			return true;
 		}
+
 		if (arg2.resourceType().name().equals("Topic")) {
 			topicName = arg2.name();
 		} else {
@@ -88,9 +91,21 @@ public class KafkaCustomAuthorizer implements Authorizer {
 		try {
 
 			if (null != topicName && topicName.indexOf(".") > 0) {
-				namspace = topicName.substring(0, topicName.lastIndexOf("."));
-				ins = namspace + ".topic";
-				type = ":topic." + topicName;
+
+				if (action.equals("create")) {
+					String instancePart = (System.getenv("msgRtr.topicfactory.aaf") != null)
+							? System.getenv("msgRtr.topicfactory.aaf")
+							: "org.onap.dmaap.mr.topicFactory|:org.onap.dmaap.mr.topic:";
+					String[] instandType = (instancePart + namspace + "|create").split("|");
+					ins = instandType[0];
+					type = instandType[1];
+				} else if (action.equals("pub") || action.equals("sub")) {
+					namspace = topicName.substring(0, topicName.lastIndexOf("."));
+					String instancePart = (System.getenv("pubSubInstPart") != null) ? System.getenv("pubSubInstPart")
+							: ".topic";
+					ins = namspace + instancePart;
+					type = ":topic." + topicName;
+				}
 				logger.info("^Event Received for topic " + topicName + " , User " + fullName + " , action = " + action);
 			}
 
@@ -107,7 +122,7 @@ public class KafkaCustomAuthorizer implements Authorizer {
 				}
 				if (!hasResp) {
 					logger.info(fullName + " is not allowed in " + ins + "|" + type + "|" + action);
-					throw new Exception(fullName + " is not allowed in " + ins + "|" + type + "|" + action);
+					return false;
 				}
 			}
 		} catch (final Exception e) {
