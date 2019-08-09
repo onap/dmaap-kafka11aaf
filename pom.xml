@@ -338,7 +338,7 @@
                         			  <pushRegistry>${docker.push.registry}</pushRegistry>
 			                          <images>
 			                              <image>
-			                                  <name>onap/dmaap/kafka01101</name>
+			                                  <name>onap/dmaap/kafka111</name>
 			                                  <build>
 			                                      <cleanup>try</cleanup>
 			                                     <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
