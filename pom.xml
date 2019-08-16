@@ -1,6 +1,6 @@
 <!-- ============LICENSE_START======================================================= 
 	org.onap.dmaap ================================================================================ 
-	Copyright © 2017 AT&T Intellectual Property. All rights reserved. ================================================================================ 
+	Copyright Â© 2017 AT&T Intellectual Property. All rights reserved. ================================================================================ 
 	Licensed under the Apache License, Version 2.0 (the "License"); you may not 
 	use this file except in compliance with the License. You may obtain a copy 
 	of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
@@ -21,7 +21,7 @@
 
 	<groupId>org.onap.dmaap.kafka</groupId>
 	<artifactId>kafka11aaf</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.3-SNAPSHOT</version>
 	<name>dmaap-kafka</name>
 	<licenses>
 		<license>
@@ -39,16 +39,6 @@
 	</developers>
 
 	<build>
-	<!-- Copy files to docker-stage to be included in image -->        
-        <resources>
-            <resource>
-                <targetPath>${basedir}/target/docker-stage</targetPath>
-                <directory>${basedir}/src/main/docker</directory>
-                    <includes>
-                        <include>*</include>
-                    </includes>
-            </resource>
-        </resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -159,32 +149,97 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
-                  		<artifactId>maven-resources-plugin</artifactId>
-		                  <version>2.7</version>
-                		  <executions>
-		                     <execution>
-                		          <id>copy-jar</id>
-		                          <phase>install</phase>
-                		          <goals>
-		                              <goal>copy-resources</goal>
-                		          </goals>
-		                          <configuration>
-                		              <outputDirectory>${basedir}/target/docker-stage</outputDirectory>
-		                              <resources>
-		                                  <resource>
-		                                      <directory>${basedir}/target</directory>
-		                                      <includes>
-		                                          <include>dmaapMMAgent.jar</include>
-		                                          <include>kafka11aaf-jar-with-dependencies.jar</include>
-		                                      </includes>
-		                                  </resource>
-		                              </resources>
-		                          </configuration>
-		                      </execution>
-		                  </executions>
-		       	</plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<imageName>onap/dmaap/kafka111</imageName>
+					<dockerDirectory>src/main/docker</dockerDirectory>
+					<serverId>docker-hub</serverId>
+					<imageTags>
+						<imageTag>${dockertag1}</imageTag>
+						<imageTag>${dockertag2}</imageTag>
+					</imageTags>
+					<resources>
+						<!-- <resource> <targetPath>/</targetPath> <directory>${dockerLocation}</directory> 
+							<include>${project.build.finalName}.jar</include> </resource> -->
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>**/**</include>
+						</resource>
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>dmaapMMAgent.jar</include>
+						</resource>
+					</resources>
+				</configuration>
+				<executions>
+					<execution>
+						<id>build-image</id>
+						<phase>install</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+						<configuration>
+							<skipDockerBuild>${skip.docker.build}</skipDockerBuild>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tag-image-project-version</id>
+						<phase>install</phase>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<image>onap/dmaap/kafka111</image>
+							<newName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag2}</newName>
+							<skipDockerTag>${skip.docker.push}</skipDockerTag>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tag-image-latest</id>
+						<phase>install</phase>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<image>onap/dmaap/kafka111</image>
+							<newName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag1}</newName>
+							<skipDockerTag>${skip.docker.push}</skipDockerTag>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>push-image</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+						<configuration>
+							<imageName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag2}</imageName>
+							<skipDockerPush>${skip.docker.push}</skipDockerPush>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>push-image-latest</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+						<configuration>
+							<imageName>${docker.push.registry}/onap/dmaap/kafka111:${dockertag1}</imageName>
+							<skipDockerPush>${skip.docker.push}</skipDockerPush>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -326,48 +381,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- build docker image -->
-                    			<plugin>
-			                      <groupId>io.fabric8</groupId>
-			                      <artifactId>docker-maven-plugin</artifactId>
-			                      <version>0.28.0</version>
-				                      <configuration>
-			                          <verbose>${docker.verbose}</verbose>
-			                          <apiVersion>${docker.apiVersion}</apiVersion>
-			                          <pullRegistry>${docker.pull.registry}</pullRegistry>
-                        			  <pushRegistry>${docker.push.registry}</pushRegistry>
-			                          <images>
-			                              <image>
-			                                  <name>onap/dmaap/kafka111</name>
-			                                  <build>
-			                                      <cleanup>try</cleanup>
-			                                     <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
-			                                     <dockerFile>Dockerfile</dockerFile>
-			                                      <tags>
-			                                          <tag>${dockertag1}</tag>
-			                                          <tag>${dockertag2}</tag>
-			                                      </tags>
-			                                  </build>
-			                              </image>
-			                          </images>
-			                      </configuration>
-			                      <executions>
-			                          <execution>
-			                              <id>generate-images</id>
-			                              <phase>install</phase>
-			                              <goals>
-			                                  <goal>build</goal>
-			                              </goals>
-			                          </execution>
-			                          <execution>
-			                              <id>push-images</id>
-			                              <phase>deploy</phase>
-			                              <goals>
-			                                  <goal>push</goal>
-			                              </goals>
-			                          </execution>
-			                      </executions>
-			                   </plugin>
 				</plugins>
 			</build>
 		</profile>
