@@ -1,24 +1,28 @@
-FROM anapsix/alpine-java
+FROM openjdk:8-jre-alpine3.9
 
 ARG kafka_version=1.1.1
 ARG scala_version=2.12
 
 
-RUN apk add --update unzip wget curl docker jq coreutils
+RUN apk add --update unzip wget curl jq coreutils bash
 
 ENV KAFKA_VERSION=$kafka_version SCALA_VERSION=$scala_version
-ADD download-kafka.sh /tmp/download-kafka.sh
-ADD kafka_server_jaas.conf /tmp/kafka_server_jaas.conf
-ADD org.onap.dmaap.mr.trust.jks /tmp/org.onap.dmaap.mr.trust.jks
-ADD org.onap.dmaap.mr.p12 /tmp/org.onap.dmaap.mr.p12
-ADD org.onap.dmaap.mr.keyfile /tmp/org.onap.dmaap.mr.keyfile
-ADD cadi.properties /tmp/cadi.properties
-ADD mmagent.config /opt/etc/mmagent.config
-ADD consumer.properties /opt/etc/consumer.properties
-ADD producer.properties /opt/etc/producer.properties
-ADD kafka11aaf-jar-with-dependencies.jar /tmp/kafka11aaf-jar-with-dependencies.jar
-ADD dmaapMMAgent.jar /tmp/dmaapMMAgent.jar
-ADD kafka-run-class.sh /tmp/kafka-run-class.sh
+
+COPY download-kafka.sh \
+     kafka_server_jaas.conf \
+     org.onap.dmaap.mr.trust.jks \
+     org.onap.dmaap.mr.p12 \
+     org.onap.dmaap.mr.keyfile \
+     cadi.properties \
+     kafka11aaf-jar-with-dependencies.jar \
+     dmaapMMAgent.jar \
+     kafka-run-class.sh \
+     /tmp/
+
+COPY mmagent.config \
+     consumer.properties \
+     producer.properties \
+     /opt/etc/
 
 RUN chmod a+x /tmp/download-kafka.sh && sync && /tmp/download-kafka.sh && tar xfz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt && rm /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz && ln -s /opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION} /opt/kafka
 
@@ -26,13 +30,17 @@ VOLUME ["/kafka"]
 
 ENV KAFKA_HOME /opt/kafka
 ENV PATH ${PATH}:${KAFKA_HOME}/bin
-ADD start-kafka.sh /usr/bin/start-kafka.sh
-ADD broker-list.sh /usr/bin/broker-list.sh
-ADD create-topics.sh /usr/bin/create-topics.sh
-ADD start-kafkaOrMirrorMaker.sh /usr/bin/start-kafkaOrMirrorMaker.sh
-ADD start-mirrormaker.sh /usr/bin/start-mirrormaker.sh
-RUN mkdir /opt/logs
-RUN touch /opt/logs/mmagent.log
+
+COPY start-kafka.sh \
+     broker-list.sh \
+     create-topics.sh \
+     start-kafkaOrMirrorMaker.sh \
+     start-mirrormaker.sh \
+     /usr/bin/
+
+RUN mkdir /opt/logs && \
+    touch /opt/logs/mmagent.log
+
 # The scripts need to have executable permission
 RUN chmod a+x /usr/bin/start-kafka.sh && \
     chmod a+x /usr/bin/broker-list.sh && \
