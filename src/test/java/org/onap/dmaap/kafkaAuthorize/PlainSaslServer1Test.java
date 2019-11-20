@@ -34,14 +34,16 @@ import org.mockito.MockitoAnnotations;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProvider;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderFactory;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.security.auth.*")
 @PrepareForTest({ AuthorizationProviderFactory.class })
 public class PlainSaslServer1Test {
 
-	PlainSaslServer1 sslServer = new PlainSaslServer1(null);
+	PlainSaslServer1 sslServer = new PlainSaslServer1();
 	@Mock
 	JaasContext jaasContext;
 	@Mock

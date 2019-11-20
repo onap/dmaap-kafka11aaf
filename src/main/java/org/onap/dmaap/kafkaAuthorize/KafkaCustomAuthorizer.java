@@ -20,14 +20,17 @@
  *******************************************************************************/
 package org.onap.dmaap.kafkaAuthorize;
 
+import java.util.EnumSet;
 import java.util.Map;
 
+import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.security.auth.KafkaPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.onap.aaf.cadi.PropAccess;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderFactory;
+import org.onap.dmaap.commonauth.kafka.base.authorization.Cadi3AAFProvider;
+
 import kafka.network.RequestChannel.Session;
 import kafka.security.auth.Acl;
 import kafka.security.auth.Authorizer;
@@ -41,10 +44,16 @@ import scala.collection.immutable.Set;
  * 
  */
 public class KafkaCustomAuthorizer implements Authorizer {
-	private PropAccess access;
+
+	private String[] adminPermission = new String[3];
+	public static final EnumSet<AclOperation> TOPIC_DESCRIBE_OPERATIONS = EnumSet.of(AclOperation.DESCRIBE_CONFIGS);
+	public static final EnumSet<AclOperation> TOPIC_READ_WRITE_DESCRIBE_OPERATIONS = EnumSet.of(AclOperation.WRITE,
+			AclOperation.READ, AclOperation.DESCRIBE_CONFIGS);
+	public static final EnumSet<AclOperation> TOPIC_ADMIN_OPERATIONS = EnumSet.of(AclOperation.ALTER,
+			AclOperation.ALTER_CONFIGS, AclOperation.CREATE);
+
 	private static final Logger logger = LoggerFactory.getLogger(KafkaCustomAuthorizer.class);
 
-	// I'm assuming this is called BEFORE any usage...
 	@Override
 	public void configure(final Map<String, ?> arg0) {
 		// TODO Auto-generate method stub
@@ -53,6 +62,81 @@ public class KafkaCustomAuthorizer implements Authorizer {
 	@Override
 	public void addAcls(final Set<Acl> arg0, final Resource arg1) {
 		// TODO Auto-generated method stub
+
+	}
+
+	private String[] getTopicPermission(String topicName, AclOperation aclOperation) {
+
+		String namspace = topicName.substring(0, topicName.lastIndexOf("."));
+		String[] permission = new String[3];
+		if (TOPIC_READ_WRITE_DESCRIBE_OPERATIONS.contains(aclOperation)) {
+			permission[0] = namspace + ".topic";
+			String instancePart = (System.getenv("pubSubInstPart") != null) ? System.getenv("pubSubInstPart")
+					: ".topic";
+			permission[1] = instancePart + topicName;
+
+			if (aclOperation.equals(AclOperation.WRITE)) {
+				permission[2] = "pub";
+			} else if (aclOperation.equals(AclOperation.READ)) {
+				permission[2] = "sub";
+
+			} else if (TOPIC_DESCRIBE_OPERATIONS.contains(aclOperation)) {
+				permission[2] = "view";
+
+			}
+		} else if (aclOperation.equals(AclOperation.DELETE)) {
+			permission = new String(System.getProperty("msgRtr.topicfactory.aaf") + namspace + "|destroy").split("\\|");
+
+		} else if (TOPIC_ADMIN_OPERATIONS.contains(aclOperation)) {
+			permission = new String(System.getProperty("msgRtr.topicfactory.aaf") + namspace + "|create").split("\\|");
+		}
+
+		return permission;
+	}
+
+	private String[] getAdminPermission() {
+
+		if (adminPermission[0] == null) {
+			adminPermission[0] = System.getProperty("namespace") + ".kafka.access";
+			adminPermission[1] = "*";
+			adminPermission[2] = "*";
+		}
+
+		return adminPermission;
+	}
+
+	private String[] getPermission(AclOperation aclOperation, String resource, String topicName) {
+		String[] permission = new String[3];
+		switch (aclOperation) {
+
+		case ALTER:
+		case ALTER_CONFIGS:
+		case CREATE:
+		case DELETE:
+			if (resource.equals("Topic")) {
+				permission = getTopicPermission(topicName, aclOperation);
+			} else if (resource.equals("Cluster")) {
+				permission = getAdminPermission();
+			}
+			break;
+		case DESCRIBE_CONFIGS:
+		case READ:
+		case WRITE:
+			if (resource.equals("Topic")) {
+				permission = getTopicPermission(topicName, aclOperation);
+			}
+			break;
+		case IDEMPOTENT_WRITE:
+			if (resource.equals("Cluster")) {
+				permission = getAdminPermission();
+			}
+			break;
+		default:
+			break;
+
+		}
+
+		return permission;
 
 	}
 
@@ -65,70 +149,49 @@ public class KafkaCustomAuthorizer implements Authorizer {
 		String fullName = arg0.principal().getName();
 		fullName = fullName != null ? fullName.trim() : fullName;
 		String topicName = null;
-		String namspace = null;
-		String ins = null;
-		String type = null;
-		String action = null;
+		String[] permission = new String[3];
 
-		String kafkaactivity = arg1.name();
+		String resource = arg2.resourceType().name();
 
-		if (kafkaactivity.equals("Read")) {
-			action = "sub";
-		} else if (kafkaactivity.equals("Write")) {
-			action = "pub";
-		} else if (kafkaactivity.equals("Create")) {
-			action = "create";
-		} else {
-			return true;
-		}
-
-		if (arg2.resourceType().name().equals("Topic")) {
+		if (resource.equals("Topic")) {
 			topicName = arg2.name();
-		} else {
+		}
+
+		if (fullName != null && fullName.equals(Cadi3AAFProvider.getKafkaUsername())) {
 			return true;
 		}
 
-		try {
-
-			if (null != topicName && topicName.indexOf(".") > 0) {
-
-				if (action.equals("create")) {
-					String instancePart = (System.getenv("msgRtr.topicfactory.aaf") != null)
-							? System.getenv("msgRtr.topicfactory.aaf")
-							: "org.onap.dmaap.mr.topicFactory|:org.onap.dmaap.mr.topic:";
-					String[] instandType = (instancePart + namspace + "|create").split("|");
-					ins = instandType[0];
-					type = instandType[1];
-				} else if (action.equals("pub") || action.equals("sub")) {
-					namspace = topicName.substring(0, topicName.lastIndexOf("."));
-					String instancePart = (System.getenv("pubSubInstPart") != null) ? System.getenv("pubSubInstPart")
-							: ".topic";
-					ins = namspace + instancePart;
-					type = ":topic." + topicName;
-				}
-				logger.info("^Event Received for topic " + topicName + " , User " + fullName + " , action = " + action);
-			}
-
-			if (null != fullName && fullName.equals("admin")) {
-				return true;
-			}
-
-			if (null != topicName) {
-				boolean hasResp = AuthorizationProviderFactory.getProviderFactory().getProvider()
-						.hasPermission(fullName, ins, type, action);
-				if (hasResp) {
-					logger.info("Successful Authorization for " + fullName + " on " + topicName + " for " + ins + "|"
-							+ type + "|" + action);
-				}
-				if (!hasResp) {
-					logger.info(fullName + " is not allowed in " + ins + "|" + type + "|" + action);
-					return false;
-				}
-			}
-		} catch (final Exception e) {
-			return false;
+		if (null != topicName && !topicName.startsWith("org.onap")) {
+			return true;
 		}
-		return true;
+
+		permission = getPermission(arg1.toJava(), resource, topicName);
+
+		if (permission[0] == null) {
+			return true;
+		} else {
+
+			try {
+
+				if (null != topicName) {
+					boolean hasResp = AuthorizationProviderFactory.getProviderFactory().getProvider()
+							.hasPermission(fullName, permission[0], permission[1], permission[2]);
+					if (hasResp) {
+						logger.info("Successful Authorization for " + fullName + " on " + topicName + " for "
+								+ permission[0] + "|" + permission[1] + "|" + permission[2]);
+					}
+					if (!hasResp) {
+						logger.info(fullName + " is not allowed in " + permission[0] + "|" + permission[1] + "|"
+								+ permission[2]);
+						return false;
+					}
+				}
+			} catch (final Exception e) {
+				return false;
+			}
+			return true;
+
+		}
 	}
 
 	@Override

@@ -22,6 +22,7 @@ package org.onap.dmaap.commonauth.kafka.base.authorization;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.net.ssl.*")
+@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.*"})
 public class Cadi3AAFProviderTest {
 
 	public Cadi3AAFProvider cadi3AAFProvider;
@@ -60,36 +61,34 @@ public class Cadi3AAFProviderTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		cadi3AAFProvider = new Cadi3AAFProvider();
 	}
 
 	@Test
 	public void testHasPermission() {
-		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
-		cadi3AAFProvider = new Cadi3AAFProvider();
 		assertFalse(cadi3AAFProvider.hasPermission("userID", "permission", "instance", "action"));
 	}
 
 	@Test
 	public void testHasAdminPermission() {
-		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
-		cadi3AAFProvider = new Cadi3AAFProvider();
 		assertEquals(cadi3AAFProvider.hasPermission("admin", "permission", "instance", "action"), true);
 	}
 	
 	@Test(expected = NullPointerException.class)
 	public void tesAuthenticate() throws Exception {
-		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
-		cadi3AAFProvider = new Cadi3AAFProvider();
 		when(aafAuthn.validate("userId", "password")).thenReturn("valid");
 		assertEquals(cadi3AAFProvider.authenticate("userId", "password"), "valid");
 	}
 
 	@Test
-	public void tesAuthenticateadmin() throws Exception {
-		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
-		cadi3AAFProvider = new Cadi3AAFProvider();
-		when(aafAuthn.validate("admin", "password")).thenReturn("valid");
-		assertNull(cadi3AAFProvider.authenticate("admin", "password"));
+	public void tesAuthenticateAdmin() throws Exception {
+		assertNull(cadi3AAFProvider.authenticate("kafkaUsername", "apiKey"));
+	}
+	
+	@Test
+	public void tesAuthenticateAdminwtWrongCred() throws Exception {
+		assertNotNull(cadi3AAFProvider.authenticate("kafkaUsername", "api"));
 	}
 	
 }

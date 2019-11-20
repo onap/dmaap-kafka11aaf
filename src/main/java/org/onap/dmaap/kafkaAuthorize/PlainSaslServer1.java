@@ -53,14 +53,9 @@ public class PlainSaslServer1 implements SaslServer {
 
 	public static final String PLAIN_MECHANISM = "PLAIN";
 
-	private final JaasContext jaasContext;
-
 	private boolean complete;
 	private String authorizationID;
 
-	public PlainSaslServer1(JaasContext jaasContext) {
-		this.jaasContext = jaasContext;
-	}
 
 	@Override
 	public byte[] evaluateResponse(byte[] response) throws SaslException {
@@ -164,11 +159,7 @@ public class PlainSaslServer1 implements SaslServer {
 				throw new SaslException(
 						String.format("Mechanism \'%s\' is not supported. Only PLAIN is supported.", mechanism));
 
-			if (!(cbh instanceof SaslServerCallbackHandler))
-				throw new SaslException(
-						"CallbackHandler must be of type SaslServerCallbackHandler, but it is: " + cbh.getClass());
-
-			return new PlainSaslServer1(((SaslServerCallbackHandler) cbh).jaasContext());
+			return new PlainSaslServer1();
 		}
 
 		@Override
