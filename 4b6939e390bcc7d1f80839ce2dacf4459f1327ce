@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Mandar Sawant <ms5838@att.com>
+Submitted-by: Mandar Sawant <ms5838@att.com>
+Submitted-at: Wed, 20 Nov 2019 21:20:21 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/dmaap/kafka11aaf/+/98686
+Project: dmaap/kafka11aaf
+Branch: refs/heads/master
