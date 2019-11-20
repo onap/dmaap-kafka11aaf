@@ -20,8 +20,10 @@
  *******************************************************************************/
 package org.onap.dmaap.kafkaAuthorize;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.security.auth.KafkaPrincipal;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +43,7 @@ import kafka.security.auth.Resource;
 import kafka.security.auth.ResourceType;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.net.ssl.*")
+@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.*"})
 @PrepareForTest({ AuthorizationProviderFactory.class })
 public class KafkaCustomAuthorizerTest {
 	@Mock
@@ -84,7 +86,7 @@ public class KafkaCustomAuthorizerTest {
 	@Test
 	public void testAuthorizerSuccess() {
 
-
+		
 		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
 				.thenReturn(true);
 		authorizer = new KafkaCustomAuthorizer();
@@ -95,6 +97,9 @@ public class KafkaCustomAuthorizerTest {
 	@Test
 	public void testAuthorizerFailure() {
 		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		PowerMockito.when(arg2.name()).thenReturn("org.onap.dmaap.mr.testtopic");
+		PowerMockito.when(arg1.toJava()).thenReturn(AclOperation.CREATE);
+		System.setProperty("msgRtr.topicfactory.aaf", "org.onap.dmaap.mr.topicFactory|:org.onap.dmaap.mr.topic:");
 		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
 				.thenReturn(false);
 		authorizer = new KafkaCustomAuthorizer();
@@ -105,5 +110,109 @@ public class KafkaCustomAuthorizerTest {
 		}
 
 	}
+	
+	@Test
+	public void testAuthorizerFailure1() {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		PowerMockito.when(arg2.name()).thenReturn("org.onap.dmaap.mr.testtopic");
+		PowerMockito.when(resourceType.name()).thenReturn("Cluster");
+		PowerMockito.when(arg1.toJava()).thenReturn(AclOperation.CREATE);
+		System.setProperty("msgRtr.topicfactory.aaf", "org.onap.dmaap.mr.topicFactory|:org.onap.dmaap.mr.topic:");
+		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
+				.thenReturn(false);
+		authorizer = new KafkaCustomAuthorizer();
+		try {
+			authorizer.authorize(arg0, arg1, arg2);
+		} catch (Exception e) {
+			assertTrue(true);
+		}
+
+	}
+	
+	@Test
+	public void testAuthorizerFailure2() {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		PowerMockito.when(arg2.name()).thenReturn("org.onap.dmaap.mr.testtopic");
+		PowerMockito.when(resourceType.name()).thenReturn("Topic");
+		PowerMockito.when(arg1.toJava()).thenReturn(AclOperation.WRITE);
+		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
+				.thenReturn(false);
+		authorizer = new KafkaCustomAuthorizer();
+		try {
+			authorizer.authorize(arg0, arg1, arg2);
+		} catch (Exception e) {
+			assertTrue(true);
+		}
+
+	}
+	
+	@Test
+	public void testAuthorizerFailure3() {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		PowerMockito.when(arg2.name()).thenReturn("org.onap.dmaap.mr.testtopic");
+		PowerMockito.when(resourceType.name()).thenReturn("Topic");
+		PowerMockito.when(arg1.toJava()).thenReturn(AclOperation.DESCRIBE);
+		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
+				.thenReturn(false);
+		authorizer = new KafkaCustomAuthorizer();
+		try {
+			authorizer.authorize(arg0, arg1, arg2);
+		} catch (Exception e) {
+			assertTrue(true);
+		}
+
+	}
+	@Test
+	public void testAuthorizerFailure4() {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		PowerMockito.when(arg2.name()).thenReturn("org.onap.dmaap.mr.testtopic");
+		PowerMockito.when(resourceType.name()).thenReturn("Topic");
+		PowerMockito.when(arg1.toJava()).thenReturn(AclOperation.READ);
+		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
+				.thenReturn(false);
+		authorizer = new KafkaCustomAuthorizer();
+		try {
+			authorizer.authorize(arg0, arg1, arg2);
+		} catch (Exception e) {
+			assertTrue(true);
+		}
+
+	}
+	
+	@Test
+	public void testAuthorizerFailure5() {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		PowerMockito.when(arg2.name()).thenReturn("org.onap.dmaap.mr.testtopic");
+		PowerMockito.when(resourceType.name()).thenReturn("Cluster");
+		PowerMockito.when(arg1.toJava()).thenReturn(AclOperation.IDEMPOTENT_WRITE);
+		System.setProperty("msgRtr.topicfactory.aaf", "org.onap.dmaap.mr.topicFactory|:org.onap.dmaap.mr.topic:");
+		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
+				.thenReturn(false);
+		authorizer = new KafkaCustomAuthorizer();
+		try {
+			authorizer.authorize(arg0, arg1, arg2);
+		} catch (Exception e) {
+			assertTrue(true);
+		}
+
+	}
+	
+	@Test
+	public void testAuthorizerFailure6() {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		PowerMockito.when(arg2.name()).thenReturn("org.onap.dmaap.mr.testtopic");
+		PowerMockito.when(arg1.toJava()).thenReturn(AclOperation.DELETE);
+		System.setProperty("msgRtr.topicfactory.aaf", "org.onap.dmaap.mr.topicFactory|:org.onap.dmaap.mr.topic:");
+		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
+				.thenReturn(false);
+		authorizer = new KafkaCustomAuthorizer();
+		try {
+			authorizer.authorize(arg0, arg1, arg2);
+		} catch (Exception e) {
+			assertTrue(true);
+		}
+
+	}
+	
 
 }
