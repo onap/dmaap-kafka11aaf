@@ -22,7 +22,11 @@ package org.onap.dmaap.commonauth.kafka.base.authorization;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
+
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +46,45 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	private static AAFCon<?> aafcon;
 	private static final String CADI_PROPERTIES = "/opt/kafka/config/cadi.properties";
 	private static final String AAF_LOCATOR_ENV = "aaf_locate_url";
-	private static final String MR_NAMESPACE = "org.onap.dmaap.mr";
+	private static String apiKey = null;
+	private static String kafkaUsername = null;
+	private static AAFAuthn<?> aafAuthn;
+	private static AbsAAFLur<AAFPermission> aafLur;
+
+	private static final Logger logger = LoggerFactory.getLogger(Cadi3AAFProvider.class);
+
+	static {
+
+		Configuration config = Configuration.getConfiguration();
+		try {
+			if (config == null) {
+				logger.error("CRITICAL ERROR|Check java.security.auth.login.config VM argument|");
+			} else {
+				// read the section for KafkaServer
+				AppConfigurationEntry[] entries = config.getAppConfigurationEntry("KafkaServer");
+				if (entries == null) {
+					logger.error(
+							"CRITICAL ERROR|Check config contents passed in java.security.auth.login.config VM argument|");
+					kafkaUsername = "kafkaUsername";
+					apiKey = "apiKey";
+
+				} else {
+					for (int i = 0; i < entries.length; i++) {
+						AppConfigurationEntry entry = entries[i];
+						Map<String, ?> optionsMap = entry.getOptions();
+						kafkaUsername = (String) optionsMap.get("username");
+						apiKey = (String) optionsMap.get("password");
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("CRITICAL ERROR: JAAS configuration incorrectly set: " + e.getMessage());
+		}
+	}
+
+	public static String getKafkaUsername() {
+		return kafkaUsername;
+	}
 
 	public static AAFAuthn<?> getAafAuthn() throws CadiException {
 		if (aafAuthn == null) {
@@ -50,11 +92,6 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 		}
 		return aafAuthn;
 	}
-
-	private static AAFAuthn<?> aafAuthn;
-	private static AbsAAFLur<AAFPermission> aafLur;
-
-	private static final Logger logger = LoggerFactory.getLogger(Cadi3AAFProvider.class);
 
 	public Cadi3AAFProvider() {
 		setup();
@@ -133,11 +170,20 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	}
 
 	public String authenticate(String userId, String password) throws Exception {
+
 		logger.info("^Event received  with   username " + userId);
-		if (userId.equals("admin")) {
-			logger.info("User Admin by passess AAF call ....");
-			return null;
+		if (userId.equals(kafkaUsername)) {
+			if (password.equals(apiKey)) {
+				logger.info("by passes the authentication for the admin " + kafkaUsername);
+				return null;
+			} else {
+				String errorMessage = "Authentication failed for user " + kafkaUsername;
+				logger.error(errorMessage);
+				return errorMessage;
+			}
+
 		}
+
 		String aafResponse = aafAuthn.validate(userId, password);
 		logger.info("aafResponse=" + aafResponse + " for " + userId);
 
