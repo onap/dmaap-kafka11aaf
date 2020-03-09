@@ -1,4 +1,4 @@
-/*******************************************************************************
+/******************************************************************************
  *  ============LICENSE_START=======================================================
  *  org.onap.dmaap
  *  ================================================================================
@@ -21,18 +21,25 @@
 package org.onap.dmaap.kafkaAuthorize;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 import javax.security.sasl.SaslServerFactory;
 
+import org.apache.kafka.common.errors.SaslAuthenticationException;
 import org.apache.kafka.common.security.JaasContext;
 import org.apache.kafka.common.security.authenticator.SaslServerCallbackHandler;
-
+import org.apache.kafka.common.security.plain.PlainAuthenticateCallback;
+import org.apache.kafka.common.security.plain.internals.PlainSaslServer;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderFactory;
 
 /**
@@ -51,126 +58,152 @@ import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderF
  */
 public class PlainSaslServer1 implements SaslServer {
 
-	public static final String PLAIN_MECHANISM = "PLAIN";
+    public static final String PLAIN_MECHANISM = "PLAIN";
 
-	private boolean complete;
-	private String authorizationID;
+    private boolean complete;
+    private String authorizationId;
 
 
-	@Override
-	public byte[] evaluateResponse(byte[] response) throws SaslException {
-		/*
-		 * Message format (from https://tools.ietf.org/html/rfc4616):
-		 *
-		 * message = [authzid] UTF8NUL authcid UTF8NUL passwd authcid = 1*SAFE ;
-		 * MUST accept up to 255 octets authzid = 1*SAFE ; MUST accept up to 255
-		 * octets passwd = 1*SAFE ; MUST accept up to 255 octets UTF8NUL = %x00
-		 * ; UTF-8 encoded NUL character
-		 *
-		 * SAFE = UTF1 / UTF2 / UTF3 / UTF4 ;; any UTF-8 encoded Unicode
-		 * character except NUL
-		 */
+    /**
+     * @throws SaslAuthenticationException if username/password combination is invalid or if the requested
+     *         authorization id is not the same as username.
+     * <p>
+     * <b>Note:</b> This method may throw {@link SaslAuthenticationException} to provide custom error messages
+     * to clients. But care should be taken to avoid including any information in the exception message that
+     * should not be leaked to unauthenticated clients. It may be safer to throw {@link SaslException} in
+     * some cases so that a standard error message is returned to clients.
+     * </p>
+     */
+    @Override
+    public byte[] evaluateResponse(byte[] responseBytes) throws SaslAuthenticationException {
+        /*
+         * Message format (from https://tools.ietf.org/html/rfc4616):
+         *
+         * message   = [authzid] UTF8NUL authcid UTF8NUL passwd
+         * authcid   = 1*SAFE ; MUST accept up to 255 octets
+         * authzid   = 1*SAFE ; MUST accept up to 255 octets
+         * passwd    = 1*SAFE ; MUST accept up to 255 octets
+         * UTF8NUL   = %x00 ; UTF-8 encoded NUL character
+         *
+         * SAFE      = UTF1 / UTF2 / UTF3 / UTF4
+         *                ;; any UTF-8 encoded Unicode character except NUL
+         */
+        String response = new String(responseBytes, StandardCharsets.UTF_8);
+        List<String> tokens = extractTokens(response);
+        String authorizationIdFromClient = tokens.get(0);
+        String username = tokens.get(1);
+        String password = tokens.get(2);
 
-		String[] tokens;
-		try {
-			tokens = new String(response, "UTF-8").split("\u0000");
-		} catch (UnsupportedEncodingException e) {
-			throw new SaslException("UTF-8 encoding not supported", e);
-		}
-		if (tokens.length != 3)
-			throw new SaslException("Invalid SASL/PLAIN response: expected 3 tokens, got " + tokens.length);
-		authorizationID = tokens[0];
-		String username = tokens[1];
-		String password = tokens[2];
+        if (username.isEmpty()) {
+            throw new SaslAuthenticationException("Authentication failed: username not specified");
+        }
+        if (password.isEmpty()) {
+            throw new SaslAuthenticationException("Authentication failed: password not specified");
+        }
 
-		if (username.isEmpty()) {
-			throw new SaslException("Authentication failed: username not specified");
-		}
-		if (password.isEmpty()) {
-			throw new SaslException("Authentication failed: password not specified");
-		}
-		if (authorizationID.isEmpty())
-			authorizationID = username;
-
-		String aafResponse = "Not Verified";
+        String aafResponse = "Not Verified";
 		try {
 			aafResponse = AuthorizationProviderFactory.getProviderFactory().getProvider().authenticate(username,
 					password);
 		} catch (Exception e) {
 		}
-
 		if (null != aafResponse) {
-			throw new SaslException("Authentication failed: " + aafResponse + " User " + username);
+			throw new SaslAuthenticationException("Authentication failed: " + aafResponse + " User " + username);
 		}
 
-		complete = true;
-		return new byte[0];
-	}
 
-	@Override
-	public String getAuthorizationID() {
-		if (!complete)
-			throw new IllegalStateException("Authentication exchange has not completed");
-		return authorizationID;
-	}
+        if (!authorizationIdFromClient.isEmpty() && !authorizationIdFromClient.equals(username))
+            throw new SaslAuthenticationException("Authentication failed: Client requested an authorization id that is different from username");
 
-	@Override
-	public String getMechanismName() {
-		return PLAIN_MECHANISM;
-	}
+        this.authorizationId = username;
 
-	@Override
-	public Object getNegotiatedProperty(String propName) {
-		if (!complete)
-			throw new IllegalStateException("Authentication exchange has not completed");
-		return null;
-	}
+        complete = true;
+        return new byte[0];
+    }
 
-	@Override
-	public boolean isComplete() {
-		return complete;
-	}
+    private List<String> extractTokens(String string) {
+        List<String> tokens = new ArrayList<>();
+        int startIndex = 0;
+        for (int i = 0; i < 4; ++i) {
+            int endIndex = string.indexOf("\u0000", startIndex);
+            if (endIndex == -1) {
+                tokens.add(string.substring(startIndex));
+                break;
+            }
+            tokens.add(string.substring(startIndex, endIndex));
+            startIndex = endIndex + 1;
+        }
 
-	@Override
-	public byte[] unwrap(byte[] incoming, int offset, int len) throws SaslException {
-		if (!complete)
-			throw new IllegalStateException("Authentication exchange has not completed");
-		return Arrays.copyOfRange(incoming, offset, offset + len);
-	}
+        if (tokens.size() != 3)
+            throw new SaslAuthenticationException("Invalid SASL/PLAIN response: expected 3 tokens, got " +
+                tokens.size());
 
-	@Override
-	public byte[] wrap(byte[] outgoing, int offset, int len) throws SaslException {
-		if (!complete)
-			throw new IllegalStateException("Authentication exchange has not completed");
-		return Arrays.copyOfRange(outgoing, offset, offset + len);
-	}
+        return tokens;
+    }
 
-	@Override
-	public void dispose() throws SaslException {
-	}
+    @Override
+    public String getAuthorizationID() {
+        if (!complete)
+            throw new IllegalStateException("Authentication exchange has not completed");
+        return authorizationId;
+    }
 
-	public static class PlainSaslServerFactory1 implements SaslServerFactory {
+    @Override
+    public String getMechanismName() {
+        return PLAIN_MECHANISM;
+    }
 
-		@Override
-		public SaslServer createSaslServer(String mechanism, String protocol, String serverName, Map<String, ?> props,
-				CallbackHandler cbh) throws SaslException {
+    @Override
+    public Object getNegotiatedProperty(String propName) {
+        if (!complete)
+            throw new IllegalStateException("Authentication exchange has not completed");
+        return null;
+    }
 
-			if (!PLAIN_MECHANISM.equals(mechanism))
-				throw new SaslException(
-						String.format("Mechanism \'%s\' is not supported. Only PLAIN is supported.", mechanism));
+    @Override
+    public boolean isComplete() {
+        return complete;
+    }
 
-			return new PlainSaslServer1();
-		}
+    @Override
+    public byte[] unwrap(byte[] incoming, int offset, int len) {
+        if (!complete)
+            throw new IllegalStateException("Authentication exchange has not completed");
+        return Arrays.copyOfRange(incoming, offset, offset + len);
+    }
 
-		@Override
-		public String[] getMechanismNames(Map<String, ?> props) {
-			if (props == null)
-				return new String[] { PLAIN_MECHANISM };
-			String noPlainText = (String) props.get(Sasl.POLICY_NOPLAINTEXT);
-			if ("true".equals(noPlainText))
-				return new String[] {};
-			else
-				return new String[] { PLAIN_MECHANISM };
-		}
-	}
+    @Override
+    public byte[] wrap(byte[] outgoing, int offset, int len) {
+        if (!complete)
+            throw new IllegalStateException("Authentication exchange has not completed");
+        return Arrays.copyOfRange(outgoing, offset, offset + len);
+    }
+
+    @Override
+    public void dispose() {
+    }
+
+    public static class PlainSaslServerFactory1 implements SaslServerFactory {
+
+        @Override
+        public SaslServer createSaslServer(String mechanism, String protocol, String serverName, Map<String, ?> props, CallbackHandler cbh)
+            throws SaslException {
+
+            if (!PLAIN_MECHANISM.equals(mechanism))
+                throw new SaslException(String.format("Mechanism \'%s\' is not supported. Only PLAIN is supported.", mechanism));
+
+            return new PlainSaslServer1();
+        }
+
+        @Override
+        public String[] getMechanismNames(Map<String, ?> props) {
+            if (props == null) return new String[]{PLAIN_MECHANISM};
+            String noPlainText = (String) props.get(Sasl.POLICY_NOPLAINTEXT);
+            if ("true".equals(noPlainText))
+                return new String[]{};
+            else
+                return new String[]{PLAIN_MECHANISM};
+        }
+    }
 }
+

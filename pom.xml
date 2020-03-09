@@ -40,15 +40,17 @@
 
 	<build>
 		<!-- Copy files to docker-stage to be included in image -->
-        	<resources>
+        <resources>
             		<resource>
                 		<targetPath>${basedir}/target/docker-stage</targetPath>
                 		<directory>${basedir}/src/main/docker</directory>
-                    			<includes>
-                        			<include>*</include>
-                    			</includes>
+                           		</resource>
+                        <resource>
+                		<directory>${basedir}/src/main/resources</directory>
             		</resource>
-        	</resources>
+                
+
+        	</resources> 
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

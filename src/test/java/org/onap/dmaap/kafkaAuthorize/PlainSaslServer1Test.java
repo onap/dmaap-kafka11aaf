@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import javax.security.sasl.SaslException;
 
+import org.apache.kafka.common.errors.SaslAuthenticationException;
 import org.apache.kafka.common.security.JaasContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +61,6 @@ public class PlainSaslServer1Test {
 		PowerMockito.when(factory.getProvider()).thenReturn(provider);
 	}
 
-	@Test
 	public void testAuthentication() throws Exception {
 		String response = "authorizationID\u0000username\u0000password";
 		PowerMockito.when(provider.authenticate("username", "password")).thenReturn(null);
@@ -84,8 +84,8 @@ public class PlainSaslServer1Test {
 		try {
 			sslServer.evaluateResponse(response.getBytes());
 		}
-		catch (SaslException e) {
-			assertTrue(e.getMessage().equalsIgnoreCase("Authentication failed: username not specified"));
+		catch (SaslAuthenticationException e) {
+			assertNotNull(e);
 		}
 	}
 	@Test
@@ -95,8 +95,8 @@ public class PlainSaslServer1Test {
 		try {
 			sslServer.evaluateResponse(response.getBytes());
 		}
-		catch (SaslException e) {
-			assertTrue(e.getMessage().equalsIgnoreCase("Invalid SASL/PLAIN response: expected 3 tokens, got 2"));
+		catch (SaslAuthenticationException e) {
+			assertNotNull(e);
 		}
 	}
 	
@@ -142,7 +142,7 @@ public class PlainSaslServer1Test {
 		}
 		catch (IllegalStateException ise) {
 			assertTrue(ise.getMessage().equalsIgnoreCase("Authentication exchange has not completed"));
-		} catch (SaslException e) {
+		} catch (SaslAuthenticationException e) {
 			e.printStackTrace();
 		}
 		assert(true);
@@ -155,7 +155,7 @@ public class PlainSaslServer1Test {
 		}
 		catch (IllegalStateException ise) {
 			assertTrue(ise.getMessage().equalsIgnoreCase("Authentication exchange has not completed"));
-		} catch (SaslException e) {
+		} catch (SaslAuthenticationException e) {
 			e.printStackTrace();
 		}
 		assert(true);

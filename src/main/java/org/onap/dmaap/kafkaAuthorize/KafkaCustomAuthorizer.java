@@ -161,7 +161,7 @@ public class KafkaCustomAuthorizer implements Authorizer {
 			return true;
 		}
 
-		if (null != topicName && !topicName.startsWith("org.onap")) {
+		if ((!Cadi3AAFProvider.isCadiEnabled())||(null != topicName && !topicName.startsWith("org.onap"))) {
 			return true;
 		}
 

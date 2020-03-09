@@ -44,17 +44,20 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 
 	private static PropAccess access;
 	private static AAFCon<?> aafcon;
-	private static final String CADI_PROPERTIES = "/opt/kafka/config/cadi.properties";
+	private static final String CADI_PROPERTIES = "/etc/kafka/data/cadi.properties";
 	private static final String AAF_LOCATOR_ENV = "aaf_locate_url";
 	private static String apiKey = null;
 	private static String kafkaUsername = null;
 	private static AAFAuthn<?> aafAuthn;
 	private static AbsAAFLur<AAFPermission> aafLur;
-
+	private static boolean enableCadi = false;
 	private static final Logger logger = LoggerFactory.getLogger(Cadi3AAFProvider.class);
 
 	static {
 
+		if (System.getenv("enableCadi") != null && System.getenv("enableCadi").equals("true")) {
+			enableCadi = true;
+		}
 		Configuration config = Configuration.getConfiguration();
 		try {
 			if (config == null) {
@@ -84,6 +87,11 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 
 	public static String getKafkaUsername() {
 		return kafkaUsername;
+	}
+
+	public static boolean isCadiEnabled() {
+
+		return enableCadi;
 	}
 
 	public static AAFAuthn<?> getAafAuthn() throws CadiException {
@@ -172,25 +180,32 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	public String authenticate(String userId, String password) throws Exception {
 
 		logger.info("^Event received  with   username " + userId);
-		if (userId.equals(kafkaUsername)) {
-			if (password.equals(apiKey)) {
-				logger.info("by passes the authentication for the admin " + kafkaUsername);
-				return null;
-			} else {
-				String errorMessage = "Authentication failed for user " + kafkaUsername;
-				logger.error(errorMessage);
-				return errorMessage;
+
+		boolean enableCadi = System.getenv("enableCadi") == null ? true : false;
+		if (!enableCadi) {
+			return null;
+		} else {
+			if (userId.equals(kafkaUsername)) {
+				if (password.equals(apiKey)) {
+					logger.info("by passes the authentication for the admin " + kafkaUsername);
+					return null;
+				} else {
+					String errorMessage = "Authentication failed for user " + kafkaUsername;
+					logger.error(errorMessage);
+					return errorMessage;
+				}
+
 			}
 
+			String aafResponse = aafAuthn.validate(userId, password);
+			logger.info("aafResponse=" + aafResponse + " for " + userId);
+
+			if (aafResponse != null) {
+				logger.error("Authentication failed for user ." + userId);
+			}
+			return aafResponse;
 		}
 
-		String aafResponse = aafAuthn.validate(userId, password);
-		logger.info("aafResponse=" + aafResponse + " for " + userId);
-
-		if (aafResponse != null) {
-			logger.error("Authentication failed for user ." + userId);
-		}
-		return aafResponse;
 	}
 
 }

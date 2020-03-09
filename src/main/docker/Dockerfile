@@ -1,57 +1,40 @@
-FROM openjdk:8-jre-alpine3.9
+FROM confluentinc/cp-base:5.3.1
 
-ARG kafka_version=1.1.1
-ARG scala_version=2.12
+# allow arg override of required env params
+ARG KAFKA_ZOOKEEPER_CONNECT
+ENV KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT}
+ARG KAFKA_ADVERTISED_LISTENERS
+ENV KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS}
 
+ENV COMPONENT=kafka \
+    KAFKA_USER=mrkafka
 
-RUN apk add --update unzip wget curl jq coreutils bash
+RUN echo "===> installing ${COMPONENT}..." \
+    && apt-get update && apt-get install -y confluent-kafka-${SCALA_VERSION}=${CONFLUENT_VERSION}${CONFLUENT_PLATFORM_LABEL}-${CONFLUENT_DEB_VERSION} \
+    \
+    && echo "===> clean up ..."  \
+    && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
+    \
+    && echo "===> Setting up ${COMPONENT} dirs..." \
+    && mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets/cert /etc/${COMPONENT}/secrets/jaas /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
+    && chmod -R ag+w /etc/${COMPONENT} /var/lib/${COMPONENT}/data   /etc/${COMPONENT}/secrets /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
+    && chown -R root:root /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper 
 
-ENV KAFKA_VERSION=$kafka_version SCALA_VERSION=$scala_version
+COPY include/etc/confluent/docker /etc/confluent/docker
+RUN chmod -R +x /etc/confluent/docker
 
-COPY download-kafka.sh \
-     kafka_server_jaas.conf \
-     org.onap.dmaap.mr.trust.jks \
+COPY org.onap.dmaap.mr.trust.jks \
      org.onap.dmaap.mr.p12 \
      org.onap.dmaap.mr.keyfile \
-     cadi.properties \
-     kafka11aaf-jar-with-dependencies.jar \
-     dmaapMMAgent.jar \
-     kafka-run-class.sh \
-     /tmp/
+     /etc/${COMPONENT}/secrets/cert/
 
-COPY mmagent.config \
-     consumer.properties \
-     producer.properties \
-     /opt/etc/
+COPY  kafka11aaf-jar-with-dependencies.jar /usr/share/java/${COMPONENT}/
 
-RUN chmod a+x /tmp/download-kafka.sh && sync && /tmp/download-kafka.sh && tar xfz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt && rm /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz && ln -s /opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION} /opt/kafka
 
-VOLUME ["/kafka"]
+RUN useradd  -u 1000  -g 0 $KAFKA_USER
 
-ENV KAFKA_HOME /opt/kafka
-ENV PATH ${PATH}:${KAFKA_HOME}/bin
+USER $KAFKA_USER
 
-COPY start-kafka.sh \
-     broker-list.sh \
-     create-topics.sh \
-     start-kafkaOrMirrorMaker.sh \
-     start-mirrormaker.sh \
-     /usr/bin/
+EXPOSE 9092 9093
 
-RUN mkdir /opt/logs && \
-    touch /opt/logs/mmagent.log
-
-# The scripts need to have executable permission
-RUN chmod a+x /usr/bin/start-kafka.sh && \
-    chmod a+x /usr/bin/broker-list.sh && \
-    chmod a+x /usr/bin/start-kafkaOrMirrorMaker.sh && \
-    chmod a+x /usr/bin/start-mirrormaker.sh && \
-    chmod a+x /usr/bin/create-topics.sh
-# Use "exec" form so that it runs as PID 1 (useful for graceful shutdown)
-CMD ["start-kafkaOrMirrorMaker.sh"]
-
-RUN addgroup -S -g 1000  mrkafka  \
-    && adduser -S  -u 1000 mrkafka  mrkafka \
-    && chown -R mrkafka:mrkafka  /opt/kafka/ /opt/logs/ /opt/etc/ /kafka/  /usr/bin/ /tmp/
-
-USER mrkafka
+CMD ["/etc/confluent/docker/run"]

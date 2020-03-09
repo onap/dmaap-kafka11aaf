@@ -35,6 +35,7 @@ public class PlainSaslServerProvider1 extends Provider {
 	}
 
 	public static void initialize() {
-		Security.addProvider(new PlainSaslServerProvider1());
+		Security.insertProviderAt(new PlainSaslServerProvider1(),1);
 	}
 }
+
