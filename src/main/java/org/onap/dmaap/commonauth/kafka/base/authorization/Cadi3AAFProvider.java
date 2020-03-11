@@ -54,10 +54,16 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	private static final Logger logger = LoggerFactory.getLogger(Cadi3AAFProvider.class);
 
 	static {
-
+		if (System.getProperty("enableCadi") != null) {
+			if (System.getProperty("enableCadi").equals("true")) {
+				enableCadi = true;
+			}
+		}
+         else{
 		if (System.getenv("enableCadi") != null && System.getenv("enableCadi").equals("true")) {
 			enableCadi = true;
 		}
+         }
 		Configuration config = Configuration.getConfiguration();
 		try {
 			if (config == null) {
@@ -181,7 +187,6 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 
 		logger.info("^Event received  with   username " + userId);
 
-		boolean enableCadi = System.getenv("enableCadi") == null ? true : false;
 		if (!enableCadi) {
 			return null;
 		} else {

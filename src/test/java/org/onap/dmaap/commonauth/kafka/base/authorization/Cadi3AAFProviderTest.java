@@ -61,6 +61,7 @@ public class Cadi3AAFProviderTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
+		System.setProperty("enableCadi", "true");
 		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
 		cadi3AAFProvider = new Cadi3AAFProvider();
 	}
@@ -77,6 +78,7 @@ public class Cadi3AAFProviderTest {
 	
 	@Test(expected = NullPointerException.class)
 	public void tesAuthenticate() throws Exception {
+		System.setProperty("enableCadi", "true");
 		when(aafAuthn.validate("userId", "password")).thenReturn("valid");
 		assertEquals(cadi3AAFProvider.authenticate("userId", "password"), "valid");
 	}
