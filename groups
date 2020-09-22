@@ -2,4 +2,3 @@
 #
 66255057afab2417314978c981695e628fef2545                                         	saml/onap-gerrit-dmaap-kafka11aaf-committers
 daebbf523be390041a1a9c0e340a6d833aae5043                                         	GitHub Replication
-ldap:cn=onap-gerrit-dmaap-kafka11aaf-committers,ou=Groups,dc=freestandards,dc=org	ldap/onap-gerrit-dmaap-kafka11aaf-committers
