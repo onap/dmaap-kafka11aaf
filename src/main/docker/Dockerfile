@@ -10,10 +10,12 @@ ENV COMPONENT=kafka \
     KAFKA_USER=mrkafka
 
 RUN echo "===> installing ${COMPONENT}..." \
-    && apt-get update && apt-get install -y confluent-kafka-${SCALA_VERSION}=${CONFLUENT_VERSION}${CONFLUENT_PLATFORM_LABEL}-${CONFLUENT_DEB_VERSION} \
+    && wget -qO - http://packages.confluent.io/deb/3.0/archive.key | apt-key add - \
+    && echo "deb [arch=amd64] http://packages.confluent.io/deb/3.0 stable main" | tee -a /etc/apt/sources.list \
+    && apt-key update && apt-get update && apt-get install -y confluent-kafka-2.11 --force-yes \
     \
     && echo "===> clean up ..."  \
-    && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
+    && apt-get autoremove -y && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
     \
     && echo "===> Setting up ${COMPONENT} dirs..." \
     && mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets/cert /etc/${COMPONENT}/secrets/jaas /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
