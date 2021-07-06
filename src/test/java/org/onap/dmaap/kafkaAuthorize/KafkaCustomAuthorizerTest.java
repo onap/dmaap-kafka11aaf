@@ -43,7 +43,7 @@ import kafka.security.auth.Resource;
 import kafka.security.auth.ResourceType;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.*"})
+@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.*", "jdk.internal.reflect.*", "javax.crypto.*"})
 @PrepareForTest({ AuthorizationProviderFactory.class })
 public class KafkaCustomAuthorizerTest {
 	@Mock

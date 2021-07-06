@@ -40,7 +40,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.security.auth.*")
+@PowerMockIgnore({"javax.security.auth.*", "jdk.internal.reflect.*", "javax.crypto.*"})
 @PrepareForTest({ AuthorizationProviderFactory.class })
 public class PlainSaslServer1Test {
 

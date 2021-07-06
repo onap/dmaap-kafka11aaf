@@ -1,39 +1,26 @@
-FROM confluentinc/cp-base:5.3.1
-
-# allow arg override of required env params
-ARG KAFKA_ZOOKEEPER_CONNECT
-ENV KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT}
-ARG KAFKA_ADVERTISED_LISTENERS
-ENV KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS}
+FROM confluentinc/cp-kafka:6.2.0
 
 ENV COMPONENT=kafka \
-    KAFKA_USER=mrkafka
-
-RUN echo "===> installing ${COMPONENT}..." \
-    && wget -qO - http://packages.confluent.io/deb/3.0/archive.key | apt-key add - \
-    && echo "deb [arch=amd64] http://packages.confluent.io/deb/3.0 stable main" | tee -a /etc/apt/sources.list \
-    && apt-key update && apt-get update && apt-get install -y confluent-kafka-2.11 --force-yes \
-    \
-    && echo "===> clean up ..."  \
-    && apt-get autoremove -y && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
-    \
-    && echo "===> Setting up ${COMPONENT} dirs..." \
-    && mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets/cert /etc/${COMPONENT}/secrets/jaas /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
-    && chmod -R ag+w /etc/${COMPONENT} /var/lib/${COMPONENT}/data   /etc/${COMPONENT}/secrets /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
-    && chown -R root:root /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper 
-
-COPY include/etc/confluent/docker /etc/confluent/docker
-RUN chmod -R +x /etc/confluent/docker
+    KAFKA_USER=mrkafka \
+    KAFKA_GROUP=onap
 
 COPY org.onap.dmaap.mr.trust.jks \
      org.onap.dmaap.mr.p12 \
      org.onap.dmaap.mr.keyfile \
      /etc/${COMPONENT}/secrets/cert/
 
-COPY  kafka11aaf-jar-with-dependencies.jar /usr/share/java/${COMPONENT}/
+USER root
 
+RUN userdel -r appuser && groupadd $KAFKA_GROUP && useradd $KAFKA_USER -u 1000 -G 1000,$KAFKA_GROUP
 
-RUN useradd  -u 1000  -g 0 $KAFKA_USER
+WORKDIR /home/$KAFKA_USER
+
+COPY include/etc/confluent/docker/* /etc/confluent/docker/
+RUN chmod -R +x /etc/confluent/docker \
+&& mkdir -p /etc/${COMPONENT}/data /etc/${COMPONENT}/secrets \
+&& chown -R $KAFKA_USER:$KAFKA_GROUP /var/lib/${COMPONENT} /etc/${COMPONENT} /etc/confluent/docker /var/log/${COMPONENT} /var/lib/${COMPONENT} /var/log/confluent
+
+COPY kafka11aaf.jar /usr/share/java/${COMPONENT}/
 
 USER $KAFKA_USER
 

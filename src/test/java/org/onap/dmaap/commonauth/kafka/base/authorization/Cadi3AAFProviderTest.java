@@ -41,7 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.*"})
+@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.*", "jdk.internal.reflect.*"})
 public class Cadi3AAFProviderTest {
 
 	public Cadi3AAFProvider cadi3AAFProvider;
