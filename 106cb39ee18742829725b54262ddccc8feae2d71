@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66988ee0_6e8d2283",
+        "filename": "src/test/resources/cadi.properties",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4405
+      },
+      "writtenOn": "2021-07-13T13:27:52Z",
+      "side": 0,
+      "message": "Can we restore this one??",
+      "range": {
+        "startLine": 7,
+        "startChar": 51,
+        "endLine": 7,
+        "endChar": 62
+      },
+      "revId": "106cb39ee18742829725b54262ddccc8feae2d71",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}

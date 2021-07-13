@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc82f6e1_e4df416a",
+        "filename": "src/main/docker/include/etc/confluent/docker/bash-config",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 4405
+      },
+      "writtenOn": "2021-07-13T13:27:52Z",
+      "side": 1,
+      "message": "Delete this file",
+      "range": {
+        "startLine": 11,
+        "startChar": 32,
+        "endLine": 11,
+        "endChar": 45
+      },
+      "revId": "5003f3372c0f65749e7921b55a309478fc379e93",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c0ed924_dd72e071",
+        "filename": "src/main/docker/include/etc/confluent/docker/mesos-setup.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 4405
+      },
+      "writtenOn": "2021-07-13T13:27:52Z",
+      "side": 1,
+      "message": "Delete this file",
+      "range": {
+        "startLine": 10,
+        "startChar": 34,
+        "endLine": 10,
+        "endChar": 46
+      },
+      "revId": "5003f3372c0f65749e7921b55a309478fc379e93",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
