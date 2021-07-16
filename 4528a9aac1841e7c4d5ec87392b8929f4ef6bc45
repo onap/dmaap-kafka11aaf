@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24390351_d5633d7c",
+        "filename": "src/main/java/org/onap/dmaap/kafkaauthorize/KafkaCustomAuthorizer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 7617
+      },
+      "writtenOn": "2021-07-16T13:58:15Z",
+      "side": 1,
+      "message": "Nice",
+      "revId": "4528a9aac1841e7c4d5ec87392b8929f4ef6bc45",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
