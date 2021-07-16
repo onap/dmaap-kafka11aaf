@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,14 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.onap.aaf.cadi.CadiException;
 import org.onap.aaf.cadi.PropAccess;
 import org.onap.aaf.cadi.aaf.AAFPermission;
 import org.onap.aaf.cadi.aaf.v2_0.AAFAuthn;
@@ -39,6 +34,8 @@ import org.onap.aaf.cadi.aaf.v2_0.AAFCon;
 import org.onap.aaf.cadi.aaf.v2_0.AAFConHttp;
 import org.onap.aaf.cadi.aaf.v2_0.AbsAAFLur;
 import org.onap.aaf.cadi.principal.UnAuthPrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Cadi3AAFProvider implements AuthorizationProvider {
 
@@ -51,16 +48,17 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	private static AAFAuthn<?> aafAuthn;
 	private static AbsAAFLur<AAFPermission> aafLur;
 	private static boolean enableCadi = false;
+	private static final String ENABLE_CADI = "enableCadi";
 	private static final Logger logger = LoggerFactory.getLogger(Cadi3AAFProvider.class);
 
 	static {
-		if (System.getProperty("enableCadi") != null) {
-			if (System.getProperty("enableCadi").equals("true")) {
+		if (System.getProperty(ENABLE_CADI) != null) {
+			if (System.getProperty(ENABLE_CADI).equals("true")) {
 				enableCadi = true;
 			}
 		}
          else{
-		if (System.getenv("enableCadi") != null && System.getenv("enableCadi").equals("true")) {
+		if (System.getenv(ENABLE_CADI) != null && System.getenv(ENABLE_CADI).equals("true")) {
 			enableCadi = true;
 		}
          }
@@ -78,8 +76,7 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 					apiKey = "apiKey";
 
 				} else {
-					for (int i = 0; i < entries.length; i++) {
-						AppConfigurationEntry entry = entries[i];
+					for (AppConfigurationEntry entry : entries) {
 						Map<String, ?> optionsMap = entry.getOptions();
 						kafkaUsername = (String) optionsMap.get("username");
 						apiKey = (String) optionsMap.get("password");
@@ -87,7 +84,7 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("CRITICAL ERROR: JAAS configuration incorrectly set: " + e.getMessage());
+			logger.error("CRITICAL ERROR: JAAS configuration incorrectly set: {}", e.getMessage());
 		}
 	}
 
@@ -100,13 +97,6 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 		return enableCadi;
 	}
 
-	public static AAFAuthn<?> getAafAuthn() throws CadiException {
-		if (aafAuthn == null) {
-			throw new CadiException("Cadi is uninitialized in Cadi3AAFProvider.getAafAuthn()");
-		}
-		return aafAuthn;
-	}
-
 	public Cadi3AAFProvider() {
 		setup();
 	}
@@ -115,7 +105,7 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 		if (access == null) {
 
 			Properties props = new Properties();
-			FileInputStream fis = null;
+			FileInputStream fis;
 			try {
 				if (System.getProperty("CADI_PROPERTIES") != null) {
 					fis = new FileInputStream(System.getProperty("CADI_PROPERTIES"));
@@ -158,8 +148,7 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 	public boolean hasPermission(String userId, String permission, String instance, String action) {
 		boolean hasPermission = false;
 		try {
-			logger.info("^ Event at hasPermission to validate userid " + userId + " with " + permission + " " + instance
-					+ " " + action);
+			logger.info("^ Event at hasPermission to validate userid {} with {} {} {}", userId, permission, instance, action);
 			// AAF Style permissions are in the form
 			// Resource Name, Resource Type, Action
 			if (userId.equals("admin")) {
@@ -169,7 +158,7 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 			AAFPermission perm = new AAFPermission(null, permission, instance, action);
 			if (aafLur != null) {
 				hasPermission = aafLur.fish(new UnAuthPrincipal(userId), perm);
-				logger.trace("Permission: " + perm.getKey() + " for user :" + userId + " found: " + hasPermission);
+				logger.trace("Permission: {}  for user : {}  found: {}" , perm.getKey(), userId, hasPermission);
 			} else {
 				logger.error("AAF client not initialized. Not able to find permissions.");
 			}
@@ -183,16 +172,16 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 		return "CADI_AAF_PROVIDER";
 	}
 
-	public String authenticate(String userId, String password) throws Exception {
+	public String authenticate(String userId, String password) throws IOException {
 
-		logger.info("^Event received  with   username " + userId);
+		logger.info("^Event received  with username {}", userId);
 
 		if (!enableCadi) {
 			return null;
 		} else {
 			if (userId.equals(kafkaUsername)) {
 				if (password.equals(apiKey)) {
-					logger.info("by passes the authentication for the admin " + kafkaUsername);
+					logger.info("by passes the authentication for the admin {}", kafkaUsername);
 					return null;
 				} else {
 					String errorMessage = "Authentication failed for user " + kafkaUsername;
@@ -203,10 +192,10 @@ public class Cadi3AAFProvider implements AuthorizationProvider {
 			}
 
 			String aafResponse = aafAuthn.validate(userId, password);
-			logger.info("aafResponse=" + aafResponse + " for " + userId);
+			logger.info("aafResponse = {} for {}", aafResponse, userId);
 
 			if (aafResponse != null) {
-				logger.error("Authentication failed for user ." + userId);
+				logger.error("Authentication failed for user {}", userId);
 			}
 			return aafResponse;
 		}

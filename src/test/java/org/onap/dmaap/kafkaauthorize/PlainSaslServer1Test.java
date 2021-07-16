@@ -18,22 +18,27 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaAuthorize;
+package org.onap.dmaap.kafkaauthorize;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
-
 import org.apache.kafka.common.errors.SaslAuthenticationException;
-import org.apache.kafka.common.security.JaasContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProvider;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderFactory;
+import org.onap.dmaap.kafkaauthorize.PlainSaslServer1.PlainSaslServerFactory1;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -45,16 +50,18 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class PlainSaslServer1Test {
 
 	PlainSaslServer1 sslServer = new PlainSaslServer1();
-	@Mock
-	JaasContext jaasContext;
+
 	@Mock
 	AuthorizationProviderFactory factory;
 	@Mock
 	AuthorizationProvider provider;
+	@Mock
+	CallbackHandler callbackHandler;
+	@Mock
+	static Map<String, String> props;
 
 	@Before
-	public void setUp() throws Exception {
-
+	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		PowerMockito.mockStatic(AuthorizationProviderFactory.class);
 		PowerMockito.when(AuthorizationProviderFactory.getProviderFactory()).thenReturn(factory);
@@ -72,15 +79,13 @@ public class PlainSaslServer1Test {
 	public void testAuthenticationEmptyAuth() throws Exception {
 		String response = "\u0000username\u0000password";
 		PowerMockito.when(provider.authenticate("username", "password")).thenReturn(null);
-		sslServer.evaluateResponse(response.getBytes());
-		assert(true);
+		assertNotNull(sslServer.evaluateResponse(response.getBytes()));
 	}
 
 	@Test
 	public void testAuthenticationEmptyUser() throws Exception {
 		String response = "authorizationID\u0000\u0000password";
 		PowerMockito.when(provider.authenticate("username", "password")).thenReturn(null);
-		
 		try {
 			sslServer.evaluateResponse(response.getBytes());
 		}
@@ -88,6 +93,7 @@ public class PlainSaslServer1Test {
 			assertNotNull(e);
 		}
 	}
+
 	@Test
 	public void testAuthenticationEmptyPassword() throws Exception {
 		String response = "authorizationID\u0000username\u0000";
@@ -102,7 +108,6 @@ public class PlainSaslServer1Test {
 	
 	@Test
 	public void testGetAuthorizationIdWithException() {
-		
 		try {
 		sslServer.getAuthorizationID();
 		}
@@ -113,7 +118,6 @@ public class PlainSaslServer1Test {
 
 	@Test
 	public void testGetNegotiatedPropertyWithException() {
-		
 		try {
 		sslServer.getNegotiatedProperty("test");
 		}
@@ -124,7 +128,6 @@ public class PlainSaslServer1Test {
 	
 	@Test
 	public void testIsComplete() {
-		
 		try {
 		sslServer.getNegotiatedProperty("test");
 		}
@@ -134,7 +137,6 @@ public class PlainSaslServer1Test {
 		assert(true);
 	}	
 
-	
 	@Test
 	public void testUnwrap() {
 		try {
@@ -159,5 +161,24 @@ public class PlainSaslServer1Test {
 			e.printStackTrace();
 		}
 		assert(true);
-	}	
+	}
+
+	@Test
+	public void testGetMech() {
+		assertEquals("PLAIN", sslServer.getMechanismName());
+	}
+
+	@Test
+	public void testIsCompleteBool() {
+		assertFalse(sslServer.isComplete());
+	}
+
+	@Test
+	public void testPlainSaslServer1() throws SaslException {
+		PlainSaslServerFactory1 plainSaslServerFactory1 = new PlainSaslServerFactory1();
+		PlainSaslServer1 saslServer1 = (PlainSaslServer1) plainSaslServerFactory1.createSaslServer(PlainSaslServer1.PLAIN_MECHANISM, "https", "mySaslServer", props, callbackHandler);
+		assertNotNull(saslServer1);
+		Mockito.when(props.get(Sasl.POLICY_NOPLAINTEXT)).thenReturn("javax.security.sasl.policy.noplaintext");
+		assertEquals(new String[]{"PLAIN"}, plainSaslServerFactory1.getMechanismNames(props));
+	}
 }

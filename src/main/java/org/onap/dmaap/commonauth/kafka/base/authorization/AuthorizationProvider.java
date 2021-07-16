@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,11 +21,13 @@
  *******************************************************************************/
 package org.onap.dmaap.commonauth.kafka.base.authorization;
 
+import java.io.IOException;
+
 public interface AuthorizationProvider {
 
-	public boolean hasPermission(String userId, String permission, String instance, String action);
+	boolean hasPermission(String userId, String permission, String instance, String action);
 
-	public String getId();
+	String getId();
 
-	public String authenticate(String userId, String password) throws Exception;
+	String authenticate(String userId, String password) throws IOException;
 }

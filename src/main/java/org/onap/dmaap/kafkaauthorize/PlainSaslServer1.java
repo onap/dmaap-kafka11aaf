@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,28 +19,19 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaAuthorize;
+package org.onap.dmaap.kafkaauthorize;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 import javax.security.sasl.SaslServerFactory;
-
 import org.apache.kafka.common.errors.SaslAuthenticationException;
-import org.apache.kafka.common.security.JaasContext;
-import org.apache.kafka.common.security.authenticator.SaslServerCallbackHandler;
-import org.apache.kafka.common.security.plain.PlainAuthenticateCallback;
-import org.apache.kafka.common.security.plain.internals.PlainSaslServer;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderFactory;
 
 /**
@@ -62,6 +54,7 @@ public class PlainSaslServer1 implements SaslServer {
 
     private boolean complete;
     private String authorizationId;
+    private static final String AUTH_EXC_NOT_COMPLETE = "Authentication exchange has not completed";
 
 
     /**
@@ -105,12 +98,12 @@ public class PlainSaslServer1 implements SaslServer {
 		try {
 			aafResponse = AuthorizationProviderFactory.getProviderFactory().getProvider().authenticate(username,
 					password);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
+            throw new SaslAuthenticationException("Authentication failed: " + aafResponse + " User " + username);
 		}
 		if (null != aafResponse) {
 			throw new SaslAuthenticationException("Authentication failed: " + aafResponse + " User " + username);
 		}
-
 
         if (!authorizationIdFromClient.isEmpty() && !authorizationIdFromClient.equals(username))
             throw new SaslAuthenticationException("Authentication failed: Client requested an authorization id that is different from username");
@@ -144,7 +137,7 @@ public class PlainSaslServer1 implements SaslServer {
     @Override
     public String getAuthorizationID() {
         if (!complete)
-            throw new IllegalStateException("Authentication exchange has not completed");
+            throw new IllegalStateException(AUTH_EXC_NOT_COMPLETE);
         return authorizationId;
     }
 
@@ -156,7 +149,7 @@ public class PlainSaslServer1 implements SaslServer {
     @Override
     public Object getNegotiatedProperty(String propName) {
         if (!complete)
-            throw new IllegalStateException("Authentication exchange has not completed");
+            throw new IllegalStateException(AUTH_EXC_NOT_COMPLETE);
         return null;
     }
 
@@ -168,19 +161,20 @@ public class PlainSaslServer1 implements SaslServer {
     @Override
     public byte[] unwrap(byte[] incoming, int offset, int len) {
         if (!complete)
-            throw new IllegalStateException("Authentication exchange has not completed");
+            throw new IllegalStateException(AUTH_EXC_NOT_COMPLETE);
         return Arrays.copyOfRange(incoming, offset, offset + len);
     }
 
     @Override
     public byte[] wrap(byte[] outgoing, int offset, int len) {
         if (!complete)
-            throw new IllegalStateException("Authentication exchange has not completed");
+            throw new IllegalStateException(AUTH_EXC_NOT_COMPLETE);
         return Arrays.copyOfRange(outgoing, offset, offset + len);
     }
 
     @Override
     public void dispose() {
+        // TODO Auto-generate method stub
     }
 
     public static class PlainSaslServerFactory1 implements SaslServerFactory {
@@ -190,7 +184,7 @@ public class PlainSaslServer1 implements SaslServer {
             throws SaslException {
 
             if (!PLAIN_MECHANISM.equals(mechanism))
-                throw new SaslException(String.format("Mechanism \'%s\' is not supported. Only PLAIN is supported.", mechanism));
+                throw new SaslException(String.format("Mechanism '%s' is not supported. Only PLAIN is supported.", mechanism));
 
             return new PlainSaslServer1();
         }

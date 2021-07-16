@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaAuthorize;
+package org.onap.dmaap.kafkaauthorize;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -62,14 +63,14 @@ public class KafkaCustomAuthorizerTest {
 	AuthorizationProvider provider;
 
 	KafkaCustomAuthorizer authorizer;
-	
+
 	static {
 		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		System.setProperty("enableCadi", "true");
 	}
 
 	@Before
-	public void setUp() throws Exception {
-
+	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		PowerMockito.when(principal.getName()).thenReturn("fullName");
 		PowerMockito.when(arg0.principal()).thenReturn(principal);
@@ -85,13 +86,10 @@ public class KafkaCustomAuthorizerTest {
 
 	@Test
 	public void testAuthorizerSuccess() {
-
-		
 		PowerMockito.when(provider.hasPermission("fullName", "namespace.topic", ":topic.namespace.Topic", "pub"))
 				.thenReturn(true);
 		authorizer = new KafkaCustomAuthorizer();
 		assertTrue(authorizer.authorize(arg0, arg1, arg2));
-
 	}
 
 	@Test

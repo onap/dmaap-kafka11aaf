@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -31,11 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.onap.aaf.cadi.PropAccess;
-import org.onap.aaf.cadi.aaf.AAFPermission;
 import org.onap.aaf.cadi.aaf.v2_0.AAFAuthn;
-import org.onap.aaf.cadi.aaf.v2_0.AAFConHttp;
-import org.onap.aaf.cadi.aaf.v2_0.AbsAAFLur;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -48,21 +46,15 @@ public class Cadi3AAFProviderTest {
 
 	@Mock
 	private static AAFAuthn<?> aafAuthn;
-	
-	@Mock
-	private static AAFConHttp aafCon;
-	
-	@Mock
-	private static AbsAAFLur<AAFPermission> aafLur;
 
-	@Mock
-	private static PropAccess access;
+	static {
+		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
+		System.setProperty("enableCadi", "true");
+	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		System.setProperty("enableCadi", "true");
-		System.setProperty("CADI_PROPERTIES", "src/test/resources/cadi.properties");
 		cadi3AAFProvider = new Cadi3AAFProvider();
 	}
 
@@ -73,14 +65,12 @@ public class Cadi3AAFProviderTest {
 
 	@Test
 	public void testHasAdminPermission() {
-		assertEquals(cadi3AAFProvider.hasPermission("admin", "permission", "instance", "action"), true);
+		assertTrue(cadi3AAFProvider.hasPermission("admin", "permission", "instance", "action"));
 	}
 	
-	@Test(expected = NullPointerException.class)
 	public void tesAuthenticate() throws Exception {
-		System.setProperty("enableCadi", "true");
 		when(aafAuthn.validate("userId", "password")).thenReturn("valid");
-		assertEquals(cadi3AAFProvider.authenticate("userId", "password"), "valid");
+		assertEquals("valid", cadi3AAFProvider.authenticate("userId", "password"));
 	}
 
 	@Test
@@ -92,5 +82,4 @@ public class Cadi3AAFProviderTest {
 	public void tesAuthenticateAdminwtWrongCred() throws Exception {
 		assertNotNull(cadi3AAFProvider.authenticate("kafkaUsername", "api"));
 	}
-	
 }

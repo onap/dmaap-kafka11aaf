@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +19,12 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaAuthorize;
+package org.onap.dmaap.kafkaauthorize;
 
 import java.security.Provider;
 import java.security.Security;
 
-import org.onap.dmaap.kafkaAuthorize.PlainSaslServer1.PlainSaslServerFactory1;
+import org.onap.dmaap.kafkaauthorize.PlainSaslServer1.PlainSaslServerFactory1;
 
 public class PlainSaslServerProvider1 extends Provider {
 

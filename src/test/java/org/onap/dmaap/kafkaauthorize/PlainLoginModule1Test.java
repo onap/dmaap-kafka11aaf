@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,49 +19,62 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaAuthorize;
+package org.onap.dmaap.kafkaauthorize;
 
-import javax.security.auth.login.LoginException;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"jdk.internal.reflect.*"})
 @PrepareForTest({ PlainLoginModule1.class })
 public class PlainLoginModule1Test {
 
-	PlainLoginModule1 pLogin = new PlainLoginModule1();
-	
+	static PlainLoginModule1 pLogin = new PlainLoginModule1();
+	static Subject subject;
+	@Mock
+	static CallbackHandler callbackHandler;
+
+	@Mock
+	static Map<String, String> mymap1;
+
+	@Mock
+	static Map<String, ?> mymap2;
+
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		MockitoAnnotations.initMocks(this);
+		PowerMockito.when(mymap1.get("username")).thenReturn("user1");
+		PowerMockito.when(mymap1.get("password")).thenReturn("pass1");
+		pLogin.initialize(subject, callbackHandler, mymap1, mymap2);
 	}
 
 	@Test
-	public void testLogin() throws LoginException {
-		boolean b = pLogin.login();
-		
-		assert(b==true);
+	public void testLogin() {
+		assertTrue(pLogin.login());
 	}
 	
 	@Test
-	public void testLogout() throws LoginException {
-		assert(pLogin.logout()==true);
+	public void testLogout() {
+		assertTrue(pLogin.logout());
 	}
 	
 	@Test
-	public void testCommit() throws LoginException {
-		assert(pLogin.commit()==true);
+	public void testCommit() {
+		assertTrue(pLogin.commit());
 	}
 	
 	@Test
-	public void testAbort() throws LoginException {
-		assert(pLogin.abort()==false);
+	public void testAbort() {
+		assertFalse(pLogin.abort());
 	}
 }

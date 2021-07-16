@@ -20,6 +20,8 @@
  *******************************************************************************/
 package org.onap.dmaap.commonauth.kafka.base.authorization;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -31,8 +33,7 @@ public class AuthorizationProviderFactoryTest {
 
 	@Test
 	public void testFactory() {
-		AuthorizationProviderFactory.getProviderFactory().getProvider();
-
+		assertNotNull(AuthorizationProviderFactory.getProviderFactory().getProvider());
 	}
 
 }

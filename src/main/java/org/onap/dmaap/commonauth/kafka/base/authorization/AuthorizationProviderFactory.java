@@ -3,6 +3,7 @@
  *  org.onap.dmaap
  *  ================================================================================
  *  Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+ *  Modification copyright (C) 2021 Nordix Foundation.
  *  ================================================================================
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,9 +24,12 @@ package org.onap.dmaap.commonauth.kafka.base.authorization;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class AuthorizationProviderFactory<K, V> {
-	private static final Map<String, AuthorizationProvider> AUTHORIZATION_PROVIDER_MAP = new HashMap<String, AuthorizationProvider>();
+public class AuthorizationProviderFactory {
+	private static final Logger logger = LoggerFactory.getLogger(AuthorizationProviderFactory.class);
+	private static final Map<String, AuthorizationProvider> AUTHORIZATION_PROVIDER_MAP = new HashMap<>();
 	private static final AuthorizationProviderFactory AUTHORIZATION_PROVIDER_FACTORY = new AuthorizationProviderFactory();
 
 	private AuthorizationProviderFactory() {
@@ -36,7 +40,7 @@ public class AuthorizationProviderFactory<K, V> {
 
 			}
 		} catch (Exception ee) {
-			System.out.println(ee);
+			logger.error(ee.getMessage(), ee);
 			System.exit(0);
 		}
 	}
