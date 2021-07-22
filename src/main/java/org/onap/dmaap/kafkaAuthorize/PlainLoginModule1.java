@@ -19,7 +19,7 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaauthorize;
+package org.onap.dmaap.kafkaAuthorize;
 
 import java.util.Map;
 import javax.security.auth.Subject;

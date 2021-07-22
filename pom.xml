@@ -33,6 +33,7 @@
     </sitePath>
     <skip.docker.build>true</skip.docker.build>
     <skip.docker.push>true</skip.docker.push>
+    <docker.nocache>true</docker.nocache>
     <nexusproxy>https://nexus.onap.org</nexusproxy>
     <docker.push.registry>nexus3.onap.org:10003</docker.push.registry>
     <onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
@@ -294,6 +295,7 @@
                 <image>
                   <name>onap/dmaap/kafka111</name>
                   <build>
+                    <nocache>true</nocache>
                     <cleanup>try</cleanup>
                     <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
                     <dockerFile>Dockerfile</dockerFile>

@@ -19,12 +19,12 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaauthorize;
+package org.onap.dmaap.kafkaAuthorize;
 
 import java.security.Provider;
 import java.security.Security;
 
-import org.onap.dmaap.kafkaauthorize.PlainSaslServer1.PlainSaslServerFactory1;
+import org.onap.dmaap.kafkaAuthorize.PlainSaslServer1.PlainSaslServerFactory1;
 
 public class PlainSaslServerProvider1 extends Provider {
 

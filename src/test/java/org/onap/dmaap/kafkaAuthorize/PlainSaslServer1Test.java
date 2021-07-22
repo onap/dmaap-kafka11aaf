@@ -18,7 +18,7 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaauthorize;
+package org.onap.dmaap.kafkaAuthorize;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,7 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProvider;
 import org.onap.dmaap.commonauth.kafka.base.authorization.AuthorizationProviderFactory;
-import org.onap.dmaap.kafkaauthorize.PlainSaslServer1.PlainSaslServerFactory1;
+import org.onap.dmaap.kafkaAuthorize.PlainSaslServer1.PlainSaslServerFactory1;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;

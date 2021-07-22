@@ -19,7 +19,7 @@
  *  
  *  
  *******************************************************************************/
-package org.onap.dmaap.kafkaauthorize;
+package org.onap.dmaap.kafkaAuthorize;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
