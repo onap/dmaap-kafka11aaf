@@ -1,0 +1,4 @@
+org/onap/dmaap/kafka/OnapKafkaConsumer.class
+org/onap/dmaap/kafka/OnapKafkaProducer.class
+org/onap/dmaap/kafka/IKafkaConfig.class
+org/onap/dmaap/kafka/OnapKafkaClient.class

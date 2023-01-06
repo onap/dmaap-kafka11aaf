@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IKafkaConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onap-kafka-client</a> &gt; <a href="index.source.html" class="el_package">org.onap.dmaap.kafka</a> &gt; <span class="el_source">IKafkaConfig.java</span></div><h1>IKafkaConfig.java</h1><pre class="source lang-java linenums">/*-
+ * ============LICENSE_START=======================================================
+ * dmaap-kafka-client
+ * ================================================================================
+ * Copyright (C) 2023 Nordix Foundation. All rights reserved.
+ * ================================================================================
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ============LICENSE_END=========================================================
+ */
+
+package org.onap.dmaap.kafka;
+
+import java.util.List;
+import org.apache.kafka.common.KafkaException;
+
+public interface IKafkaConfig {
+
+    /**
+     * Returns the list of kafka bootstrap servers.
+     *
+     * @return List of kafka bootstrap servers.
+     */
+    List&lt;String&gt; getKafkaBootstrapServers();
+
+    /**
+     * Kafka security protocol to be used by the client to Auth towards the kafka cluster
+     *
+     * @return Kafka security.protocol. Default is SASL_PLAINTEXT in the current onap kafka config
+     */
+    default String getKafkaSecurityProtocolConfig() {
+<span class="fc" id="L41">        return &quot;SASL_PLAINTEXT&quot;;</span>
+    }
+
+    /**
+     * Kafka SASL mechanism to be used by the client to Auth towards the kafka cluster
+     *
+     * @return Kafka sasl.mechanism. Default is SCRAM-SHA-512 in the current onap kafka config
+     */
+    default String getKafkaSaslMechanism() {
+<span class="nc" id="L50">        return &quot;SCRAM-SHA-512&quot;;</span>
+    }
+
+    /**
+     * Kafka JAAS config to be used by the client to Auth towards the kafka cluster.
+     * If overridden, must align with sasl.jaas.config convention set out by the sasl.mechanism being used
+     * otherwise, mandatory setting of the environment variable SASL_JAAS_CONFIG is required to provide default behaviour
+     * @return Kafka sasl.jaas.config
+     */
+    default String getKafkaSaslJaasConfig() {
+<span class="nc" id="L60">        String saslJaasConfFromEnv = System.getenv(&quot;SASL_JAAS_CONFIG&quot;);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if(saslJaasConfFromEnv != null) {</span>
+<span class="nc" id="L62">            return saslJaasConfFromEnv;</span>
+        } else {
+<span class="nc" id="L64">            throw new KafkaException(&quot;sasl.jaas.config not set for Kafka Consumer&quot;);</span>
+        }
+    }
+
+    /**
+     * The timeout in seconds to wait for a response from each poll.
+     *
+     * @return Client Timeout in seconds. Default is 10 seconds
+     */
+    default int getPollingTimeout() {
+<span class="nc" id="L74">        return 10;</span>
+    }
+
+    /**
+     * Returns the kafka consumer group defined for this component.
+     *
+     * @return KafkaConsumer group.
+     */
+    String getConsumerGroup();
+
+    /**
+     * Returns the kafka consumer id defined for this component.
+     *
+     * @return KafkaConsumer id or null.
+     */
+    String getConsumerID();
+
+    /**
+     * Returns a list of kafka topics to consume from.
+     *
+     * @return List of kafka topics or empty.
+     */
+    List&lt;String&gt; getConsumerTopics();
+
+    /**
+     * Returns a list of kafka topics to produce to.
+     *
+     * @return List of kafka topics or empty.
+     */
+    List&lt;String&gt; getProducerTopics();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

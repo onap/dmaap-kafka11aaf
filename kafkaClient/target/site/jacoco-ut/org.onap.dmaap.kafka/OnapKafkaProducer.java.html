@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OnapKafkaProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onap-kafka-client</a> &gt; <a href="index.source.html" class="el_package">org.onap.dmaap.kafka</a> &gt; <span class="el_source">OnapKafkaProducer.java</span></div><h1>OnapKafkaProducer.java</h1><pre class="source lang-java linenums">/*-
+ * ============LICENSE_START=======================================================
+ * dmaap-kafka-client
+ * ================================================================================
+ * Copyright (C) 2023 Nordix Foundation. All rights reserved.
+ * ================================================================================
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ============LICENSE_END=========================================================
+ */
+
+package org.onap.dmaap.kafka;
+
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.config.SaslConfigs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Utility class that provides a KafkaProducer to communicate with a kafka cluster
+ */
+public class OnapKafkaProducer {
+
+<span class="fc" id="L42">    private final Logger log = LoggerFactory.getLogger(OnapKafkaProducer.class);</span>
+    private final KafkaProducer&lt;String, String&gt; producer;
+    private final List&lt;String&gt; producerTopics;
+
+    /**
+     *
+     * @param configuration The config provided to the client
+     */
+<span class="fc" id="L50">    public OnapKafkaProducer(IKafkaConfig configuration) {</span>
+<span class="fc" id="L51">        producerTopics = configuration.getProducerTopics();</span>
+<span class="fc" id="L52">        log.debug(&quot;Instantiating kafka producer for topics {}&quot;, producerTopics);</span>
+<span class="fc" id="L53">        Properties props = new Properties();</span>
+<span class="fc" id="L54">        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, configuration.getKafkaBootstrapServers());</span>
+<span class="fc" id="L55">        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, configuration.getKafkaSecurityProtocolConfig());</span>
+<span class="fc" id="L56">        props.put(SaslConfigs.SASL_MECHANISM, configuration.getKafkaSaslMechanism());</span>
+<span class="fc" id="L57">        props.put(SaslConfigs.SASL_JAAS_CONFIG, configuration.getKafkaSaslJaasConfig());</span>
+<span class="fc" id="L58">        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 10000);</span>
+<span class="fc" id="L59">        props.put(ProducerConfig.CLIENT_ID_CONFIG, configuration.getConsumerID() + &quot;-producer-&quot; + UUID.randomUUID());</span>
+<span class="fc" id="L60">        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,  &quot;org.apache.kafka.common.serialization.StringSerializer&quot;);</span>
+<span class="fc" id="L61">        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, &quot;org.apache.kafka.common.serialization.StringSerializer&quot;);</span>
+<span class="fc" id="L62">        producer = new KafkaProducer&lt;&gt;(props);</span>
+<span class="fc" id="L63">    }</span>
+
+    /**
+     *
+     * @param topicName The name of the topic to publish the data to
+     * @param value The value of the data
+     * @return The RecordMetedata of the request
+     */
+    public RecordMetadata sendDataSynch(String topicName, String value) {
+<span class="fc" id="L72">        RecordMetadata data = null;</span>
+        try {
+<span class="fc" id="L74">            data = producer.send(new ProducerRecord&lt;&gt;(topicName, value)).get();</span>
+<span class="fc" id="L75">            log.debug(&quot;Data sent to topic {} at partition no {} and offset {}&quot;, topicName, data.partition(), data.offset());</span>
+<span class="fc" id="L76">        } catch (KafkaException | ExecutionException | InterruptedException e) {</span>
+<span class="fc" id="L77">            log.error(&quot;Failed the send data: exc {}&quot;, e.getMessage());</span>
+        } finally {
+<span class="fc" id="L79">            producer.flush();</span>
+        }
+<span class="fc" id="L81">        return data;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,5 @@
+#Tue Mar 07 09:47:32 GMT 2023
+configuration*?=5DDA83A9AD84DDA483F3AB460102E51A9345E5FF
+module-resource*?\:checkstyle-xpath-suppressions.xml=723B5424B29EF74839D22B2378F80252D839F5EB
+module-resource*?\:checkstyle-suppressions.xml=39ABC55B198A8136DCD53DD550129CEA61E6F3EE
+/home/zmcwdav/DevelopmentRepos/kafka11aaf/sampleClient/src/main/java/org/onap/dmaap/kafka/sample/SampleConfiguration.java=1677841040616
