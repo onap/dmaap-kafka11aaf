@@ -1,0 +1,12 @@
+/.tox
+/_build/*
+/__pycache__/*
+*.jsonld
+/dme2-fs-registry/*
+*.iml
+/target/*
+.idea/*
+/src/.idea/*
+/venv/*
+*/archives/
+*log*
