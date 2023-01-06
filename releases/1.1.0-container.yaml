@@ -1,8 +1,0 @@
-distribution_type: 'container'
-container_release_tag: '1.1.0'
-project: 'dmaap-kafka-docker'
-log-dir: 'dmaap-kafka-maven-docker-stage-master/118'
-ref: 4528a9aac1841e7c4d5ec87392b8929f4ef6bc45
-containers:
-  - name: dmaap/kafka111
-    version: 1.1.0-STAGING-20210718T232945Z
