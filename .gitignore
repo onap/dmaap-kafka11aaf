@@ -1,0 +1,7 @@
+.idea/*
+/target/*
+/kafkaClient/target/*
+/sampleClient/target/*
+/src/.idea/*
+*/archives/
+*log*
