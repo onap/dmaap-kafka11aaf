@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.onap.dmaap.kafka</groupId>
+    <groupId>org.onap.dmaap.kafka11aaf</groupId>
     <artifactId>parent</artifactId>
     <version>${revision}</version>
     <relativePath>../pom.xml</relativePath>
@@ -20,7 +20,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.onap.dmaap.kafka</groupId>
+      <groupId>org.onap.dmaap.kafka11aaf</groupId>
       <artifactId>onap-kafka-client</artifactId>
       <version>0.0.1-SNAPSHOT</version>
       <exclusions>
