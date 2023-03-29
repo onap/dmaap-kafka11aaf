@@ -1,11 +1,8 @@
 kafka:
   kafkaBootstrapServers: [localhost:9092]
   pollingTimeout: 10
-  consumerGroup: my-consumer-group
-  consumerID: my-consumer-id
-  consumerTopics: [test.mytopic.1, test.mytopic.2]
-  producerTopics: [test.mytopic.3]
-  kafkaSaslJaasConfig: ${SASL_JAAS_CONFIG:org.apache.kafka.common.security.scram.ScramLoginModule required username=admin password=admin-secret;}
-
-  #kafkaSaslJaasConfig: ${SASL_JAAS_CONFIG:org.apache.kafka.common.security.plain.PlainLoginModule required username=admin password=admin-secret;}
-  #kafkaSaslMechanism: ${SASL_MECHANISM:PLAIN}
+  consumerGroup: test-consumer-group
+  consumerID: test-id
+  consumerTopics: [test-topic.1]
+  producerTopics: [test-topic.1]
+  kafkaSaslJaasConfig: ${SASL_JAAS_CONFIG:org.apache.kafka.common.security.scram.ScramLoginModule required username="client" password="client-secret";}

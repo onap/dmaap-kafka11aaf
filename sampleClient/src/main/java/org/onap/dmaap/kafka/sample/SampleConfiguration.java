@@ -44,5 +44,4 @@ public class SampleConfiguration implements IKafkaConfig {
 
     private List<String> producerTopics;
     private String kafkaSaslJaasConfig;
-    // private String kafkaSaslMechanism;
 }

@@ -70,7 +70,7 @@ public class OnapKafkaClient {
      * Publish data to a given topic
      *  @param topicName The topic to which the message should be published
      * @param data      The data to publish to the topic specified
-     * @return
+     * @return The RecordMetedata of the request
      */
     public RecordMetadata publishToTopic(String topicName, String data) {
         // Should we check the data size and chunk it if necessary? Do we need to?
