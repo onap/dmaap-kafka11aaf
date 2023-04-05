@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: David McWeeney <david.mcweeney@est.tech>
+Submitted-by: Fiachra Corcoran <fiachra.corcoran@est.tech>
+Submitted-at: Wed, 05 Apr 2023 11:57:17 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/dmaap/kafka11aaf/+/133987
+Project: dmaap/kafka11aaf
+Branch: refs/heads/master
